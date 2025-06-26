@@ -1,5 +1,5 @@
 // homeloan.js
-
+const hmctoken ='e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac'
 document.addEventListener("DOMContentLoaded", function () {
   const contactForm = document.getElementById("contactForm");
   const submitBtn = document.getElementById("contactus-btn");
@@ -130,6 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+             'Authorization': 'Bearer ' + hmctoken 
           },
           body: JSON.stringify(payload),
         }
