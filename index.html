@@ -19,6 +19,7 @@
     <script src="./src/headerfooter.js" defer></script>
     <script src="script.js" defer></script>
     <script src="./src/Enquiryform.js" defer></script>
+    <script src="./src/app.js" defer></script>
     <script
       src="https://kit.fontawesome.com/79772b0b50.js"
       crossorigin="anonymous"
@@ -88,13 +89,34 @@
               where dreams take shape into exceptional living spaces
             </p>
 
-            <button
-              id="moreinfobtn"
-              onclick="openEnquiryForm()"
-              class="bg-[#8a6c2c] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-base sm:text-lg md:text-lg lg:text-lg font-semibold cursor-pointer hover:bg-amber-600 transition duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              More Info
-            </button>
+            <!-- Removed More Info button as requested -->
+            <!-- BEGIN: Modern Searchbar Section (Inside Hero) -->
+            <div class="w-full flex justify-center items-center z-40 relative mt-6">
+              <form id="property-search-form" class="bg-white bg-opacity-95 rounded-xl shadow-lg px-4 py-4 flex flex-col md:flex-row gap-3 md:gap-4 items-center w-[95vw] max-w-3xl mx-auto">
+                <!-- Buy/Sell/Rent toggles -->
+                <div class="flex gap-2 md:gap-3">
+                  <button type="button" id="toggle-buy" class="toggle-btn active text-[#008a46] bg-white hover:bg-[#008a46] hover:text-white transition">Buy</button>
+                  <button type="button" id="toggle-sell" class="toggle-btn text-[#b1923f] bg-white hover:bg-[#b1923f] hover:text-white transition">Sell</button>
+                  <button type="button" id="toggle-rent" class="toggle-btn text-[#ff7c2a] bg-white hover:bg-[#ff7c2a] hover:text-white transition">Rent</button>
+                </div>
+                <!-- All Locations dropdown -->
+                <select id="location-dropdown" class="border rounded px-2 py-2 min-w-[120px] text-gray-800">
+                  <option value="">All Locations</option>
+                  <option value="Bangalore">Bangalore</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="Chennai">Chennai</option>
+                </select>
+                <!-- Address input -->
+                <input id="address-input" type="text" placeholder="Enter address or landmark" class="border rounded px-2 py-2 min-w-[180px] text-gray-800" />
+                <!-- Search button -->
+                <button type="button" id="search-btn" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded flex items-center gap-2 font-semibold">
+                  <span>Search</span>
+                  <i class="fa fa-search"></i>
+                  <span id="search-loader" class="ml-2 hidden"><i class="fa fa-circle-notch fa-spin"></i></span>
+                </button>
+              </form>
+            </div>
+            <!-- END: Modern Searchbar Section (Inside Hero) -->
           </div>
         </div>
       </section>
@@ -193,7 +215,7 @@
     </div>
   </div>
 </section>
- <div class="download-section flex items-center justify-center bg-gray-200 py-2 px-5 border-t border-b border-gray-300 flex-wrap gap-4">
+    <div class="download-section flex items-center justify-center bg-gray-200 py-2 px-5 border-t border-b border-gray-300 flex-wrap gap-4">
         <p class="download-text text-lg font-bold text-gray-800 m-0 md:text-xl">Download our app now</p>
         <a href="https://mtestates.com/partners/download/application.html" target="_blank">
             <img src="https://res.cloudinary.com/dncrproperty-com/image/upload/v1735297005/DNCR-WEB/GooglePlay.webp" alt="Get it on Google Play" class="google-play-img w-36 h-auto cursor-pointer md:w-40">
