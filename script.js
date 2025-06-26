@@ -259,6 +259,48 @@ async function fetchExpertiseData() {
   }
 }
 
+// Function to fetch trending properties from API
+async function fetchTrendingProperties() {
+  try {
+    // Set up the authorization token
+    const authToken = 'e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac';
+    
+    // Set up request headers with the token
+    const headers = {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    };
+    
+    // Make the API request with authorization headers
+    const response = await fetch(
+      'https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?page=1&pageSize=10&isFeatured=true&readyToMove=false&sourceWebsite=deccanrealty.com',
+      {
+        method: 'GET',
+        headers: headers
+      }
+    );
+    
+    if (!response.ok) {
+      // Get response body even for error responses to see the error message
+      const errorData = await response.json().catch(() => ({}));
+      console.error('API Error:', errorData);
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.success && data.data && data.data.properties) {
+      return data.data.properties;
+    } else {
+      console.error('API response format is not as expected:', data);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching trending properties:', error);
+    return [];
+  }
+}
+
 // Function to create expertise card from API data
 function createExpertiseCardFromAPI(property) {
   // Extract the first image URL from the JSON string if it exists
@@ -362,6 +404,89 @@ function createPropertyCard(item) {
                     Request Info
                 </button>
                 <a href="https://api.whatsapp.com/send?phone=917303062845" target="_blank" aria-label="Chat with us on WhatsApp"  class="whatsapp-btn text-green-600 text-2xl">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+  `;
+}
+
+// Function to create trending property card from API data
+function createTrendingPropertyCardFromAPI(property) {
+  // Extract the first image URL from the JSON string if it exists
+  let imageUrl = '';
+  try {
+    const imageData = JSON.parse(property.imageURL);
+    if (imageData && imageData.length > 0 && imageData[0].imageUrl) {
+      imageUrl = imageData[0].imageUrl;
+    }
+  } catch (e) {
+    console.error('Error parsing image URL:', e);
+    imageUrl = 'https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/images/propertycardimages/Trending/nf5fbl8k6d28y6wfnx0r'; // Fallback image
+  }
+
+  // Format price from API data
+  const formattedPrice = property.price ? `₹ ${(property.price / 10000000).toFixed(2)} Cr` : 'Price on Request';
+  
+  // Parse HTML content for short description
+  const shortDescription = property.shortDescription || property.longDescription || 'Premium property available for viewing';
+  const cleanDescription = shortDescription.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&#160;/g, ' ').trim();
+  
+  // Extract configurations from description or use fallback
+  let configurations = 'Premium Apartments';
+  if (cleanDescription.includes('BHK')) {
+    const bhkMatch = cleanDescription.match(/(\d+(?:\.\d+)?BHK[^.]*)/gi);
+    if (bhkMatch) {
+      configurations = bhkMatch.join(', ').substring(0, 50) + '...';
+    }
+  }
+
+  return `
+    <div class="w-full bg-white sm:rounded-xl rounded-none overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform flex flex-col justify-between min-h-[550px]">
+        <!-- Image Section -->
+        <div class="relative">
+            <img src="${imageUrl}" alt="${property.propertyName}" 
+                 class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
+            <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Trending</span>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
+            <div class="space-y-3 flex-grow">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.propertyName}</h2>
+                    <p class="text-sm lg:text-black lg:font-semibold flex items-center">
+                        <i class="fas fa-map-marker-alt mr-2"></i>${property.locationAddress || property.city}
+                    </p>
+                    <span class="text-base sm:text-lg lg:text-[16px] font-semibold lg:text-black block">
+                        ${formattedPrice}
+                    </span>
+                </div>
+                
+                <div class="text-xs sm:text-sm space-y-2">
+                    <p class="flex items-center lg:text-black">
+                        <i class="fas fa-home text-green-500 mr-2"></i>
+                        <span class="line-clamp-2">${configurations}</span>
+                    </p>
+                    <p class="flex items-center lg:text-black">
+                        <i class="fas fa-ruler-combined text-green-500 mr-2"></i>
+                        ${property.area} ${property.lmUnit || 'Sq.Ft.'}
+                    </p>
+                    <p class="flex items-center lg:text-black">
+                        <i class="fas fa-calendar-alt text-green-500 mr-2"></i>
+                        ${property.readyToMove ? 'Ready to Move' : 'Under Construction'}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Buttons Section -->
+            <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
+                <button onclick="openEnquiryForm({ propertyName: '${property.propertyName}' })"
+                class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">
+                    Request Info
+                </button>
+                <a href="https://api.whatsapp.com/send?phone=917303062845" target="_blank" aria-label="Chat with us on WhatsApp" class="whatsapp-btn text-green-600 text-2xl">
                     <i class="fab fa-whatsapp"></i>
                 </a>
             </div>
@@ -559,12 +684,51 @@ document.addEventListener("DOMContentLoaded", () => {
  
 const serviceContainer = document.getElementById("service-container");
 
-  // Render primary property listings
- if (newPropertiesContainer) {
-   newPropertiesContainer.innerHTML = properties
-     .map(createPropertyCard)
-     .join("");
- }
+  // Render trending properties (Exceptional Properties section) using API
+  if (newPropertiesContainer) {
+    // Show loading spinner
+    newPropertiesContainer.innerHTML = `
+      <div class="col-span-full flex justify-center items-center py-10">
+        <div class="loading-spinner"></div>
+        <span class="ml-3 text-gray-600">Loading trending properties...</span>
+      </div>
+    `;
+
+    // Fetch trending properties from API
+    fetchTrendingProperties().then(properties => {
+      if (properties && properties.length > 0) {
+        // Render API data using the trending property card
+        newPropertiesContainer.innerHTML = properties
+          .slice(0, 8) // Show first 8 properties
+          .map(property => createTrendingPropertyCardFromAPI(property))
+          .join("");
+      } else {
+        // Fallback to hardcoded data if API fails or returns no data
+        console.warn('No trending properties from API, using fallback data');
+        newPropertiesContainer.innerHTML = properties
+          .map(createPropertyCard)
+          .join("");
+      }
+    }).catch(error => {
+      console.error('Error loading trending properties:', error);
+      // Show error message
+      newPropertiesContainer.innerHTML = `
+        <div class="col-span-full text-center py-10">
+          <div class="error-message mb-4">
+            <i class="fas fa-exclamation-triangle text-orange-500 text-2xl mb-2"></i>
+            <p class="text-gray-600">Unable to load trending properties. Showing default properties.</p>
+          </div>
+        </div>
+      `;
+      
+      // Add fallback data after error message
+      setTimeout(() => {
+        newPropertiesContainer.innerHTML = properties
+          .map(createPropertyCard)
+          .join("");
+      }, 2000);
+    });
+  }
 
  // Render service cards using API data
   if (serviceContainer) {
