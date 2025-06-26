@@ -56,8 +56,12 @@ class EnquiryForm {
     <!-- Submit -->
     <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto mt-4 lg:mt-0">
       <p id="enquiryStatus" class="text-white text-xs sm:text-sm"></p>
-      <button type="submit" id="submitBtn" class="bg-white cursor-pointer text-gray-800 border border-gray-300 font-medium rounded-md hover:bg-gray-100 transition text-sm sm:text-base px-4 py-3 w-full sm:w-auto lg:h-[78px]">
-        Submit
+      <button type="submit" id="submitBtn" class="bg-white cursor-pointer text-gray-800 border border-gray-300 font-medium rounded-md hover:bg-gray-100 transition text-sm sm:text-base px-4 py-3 w-full sm:w-auto lg:h-[78px] flex items-center justify-center">
+        <span id="submitBtnText">Submit</span>
+        <svg id="submitBtnSpinner" class="hidden animate-spin ml-2 h-4 w-4 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
       </button>
     </div>
   </div>
@@ -68,10 +72,16 @@ class EnquiryForm {
         <div class="loader border-t-4 border-white rounded-full w-12 h-12 animate-spin"></div>
       </div>
       <div id="successPopup" class="hidden fixed inset-0 bg-black/50 z-60 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg text-center">
-          <h3 class="text-lg font-medium text-green-600">Success!</h3>
-          <p class="mt-2 text-gray-700">Enquiry submitted successfully</p>
-          <button id="closeSuccessBtn" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">OK</button>
+        <div class="bg-white p-6 rounded-lg text-center max-w-md mx-4">
+          <div class="mb-4">
+            <svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-green-600 mb-2">Thank You!</h3>
+          <p class="text-gray-700 mb-2">Your enquiry has been submitted successfully.</p>
+          <p class="text-sm text-gray-500 mb-4">Our team will get back to you shortly.</p>
+          <button id="closeSuccessBtn" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors">OK</button>
         </div>
       </div>
     `;
@@ -94,6 +104,8 @@ class EnquiryForm {
       status: formContainer.querySelector("#enquiryStatus"),
       recaptchaError: formContainer.querySelector("#recaptcha-req-getintouch"),
       submitBtn: formContainer.querySelector("#submitBtn"),
+      submitBtnText: formContainer.querySelector("#submitBtnText"),
+      submitBtnSpinner: formContainer.querySelector("#submitBtnSpinner"),
       inputs: {
         name: formContainer.querySelector("#enquiryName"),
         phone: formContainer.querySelector("#enquiryPhone"),
@@ -189,22 +201,23 @@ class EnquiryForm {
     const { propertyName, serviceTitle } = context;
 
     const serviceMessages = {
-      "Buy Your Dream Home": "service asked buyer",
-      "Sell Your Property with Ease": "service asked seller",
-      "Find Your Perfect Rental Home": "service asked as rental",
-      "Invest in Prime Commercial Properties":
-        "service asked as commercial properties",
+      "Buy Your Dream Home": "BUYER",
+      "Sell Your Property with Ease": "SELLER", 
+      "Find Your Perfect Rental Home": "TENANT",
+      "Invest in Prime Commercial Properties": "INVESTOR",
+      "Ask More properties": "BUYER",
+      "Website Enquiry": "GENERAL"
     };
 
     console.log("Retrieved from localStorage for subject:", context);
 
     if (propertyName) {
-      return `User enquired about this property: ${propertyName}`;
+      return "BUYER"; // Property enquiries are typically from buyers
     }
     if (serviceTitle) {
-      return serviceMessages[serviceTitle] || `Enquiry for ${serviceTitle}`;
+      return serviceMessages[serviceTitle] || "GENERAL";
     }
-    return "Enquiry by Deccan Realty";
+    return "GENERAL";
   }
 
   async submitForm() {
@@ -255,45 +268,70 @@ class EnquiryForm {
     }
 
     this.elements.submitBtn.disabled = true;
+    this.elements.submitBtnText.textContent = "Submitting...";
+    this.elements.submitBtnSpinner.classList.remove("hidden");
     this.elements.loader.classList.remove("hidden");
 
     const payload = {
       subject: this.getDynamicSubject(),
-      message: values.message || "No message provided",
-      email: values.email || "No email provided",
       name: values.name,
+      email: values.email || "No email provided",
       phone: values.phone,
-      domain: "deccanrealty.com",
+      message: values.message || "No message provided",
+      domain: "deccanrealty.com"
     };
 
     console.log("Submitting payload:", payload);
 
     try {
       const response = await fetch(
-        "https://mtestatesapi-f0bthnfwbtbxcecu.southindia-01.azurewebsites.net/properties/GetInTouch",
+        "https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties/GetInTouch",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json",  'Authorization': 'Bearer ' + hmctoken, },
-
+          headers: { 
+            "Content-Type": "application/json",  
+            'Authorization': 'Bearer ' + hmctoken 
+          },
           body: JSON.stringify(payload),
         }
       );
 
-      if (!response.ok) throw new Error("Network response was not ok");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API Error:', errorData);
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+      }
 
-      this.elements.form.reset();
-      grecaptcha.reset();
-      this.elements.successPopup.classList.remove("hidden");
-      localStorage.removeItem("enquiryContext");
-      console.log("Cleared localStorage after successful submission");
+      const responseData = await response.json();
+      console.log("API Response:", responseData);
+
+      if (responseData.success) {
+        this.elements.form.reset();
+        grecaptcha.reset();
+        this.elements.successPopup.classList.remove("hidden");
+        localStorage.removeItem("enquiryContext");
+        console.log("Cleared localStorage after successful submission");
+      } else {
+        throw new Error(responseData.message || "Submission failed");
+      }
     } catch (error) {
-      this.elements.status.textContent =
-        "Failed to submit enquiry. Please try again.";
+      let errorMessage = "Failed to submit enquiry. Please try again.";
+      
+      // Check for specific error types
+      if (error.message.includes('401') || error.message.toLowerCase().includes('unauthorized')) {
+        errorMessage = "Authentication failed. Please try again later.";
+      } else if (error.message.includes('400')) {
+        errorMessage = "Please check your information and try again.";
+      }
+      
+      this.elements.status.textContent = errorMessage;
       this.elements.status.classList.add("text-red-400");
       console.error("Error:", error);
     } finally {
       this.elements.loader.classList.add("hidden");
       this.elements.submitBtn.disabled = false;
+      this.elements.submitBtnText.textContent = "Submit";
+      this.elements.submitBtnSpinner.classList.add("hidden");
     }
   }
 

@@ -635,7 +635,8 @@ const serviceContainer = document.getElementById("service-container");
   });
 });
 // Testimonial javascript code
-const reviews = [
+// Default fallback reviews data
+const defaultReviews = [
   {
     name: "Ms. Sony (Owner/Seller)",
     review:
@@ -665,6 +666,60 @@ const reviews = [
       "https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/logos/d5zo5bconzxz1puzijfu",
   },
 ];
+
+// Variable to store current reviews data
+let reviews = [];
+
+// Function to fetch testimonials from API
+async function fetchTestimonials() {
+  try {
+    const authToken = 'e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac';
+    
+    const response = await fetch(
+      'https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/testimonials/by-createdby?createdBy=deccanrealty.com&pageNumber=1&pageSize=100',
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.success && data.data && data.data.testimonials) {
+      // Transform API data to match expected format
+      return data.data.testimonials
+        .filter(testimonial => testimonial.recordStatus === 'Active')
+        .map(testimonial => ({
+          name: testimonial.customerName,
+          review: testimonial.feedbackText,
+          image: testimonial.imageURL || getDefaultImage(testimonial.userType)
+        }));
+    } else {
+      console.error('API response format is not as expected:', data);
+      return defaultReviews;
+    }
+  } catch (error) {
+    console.error('Error fetching testimonials:', error);
+    return defaultReviews;
+  }
+}
+
+// Function to get default image based on user type
+function getDefaultImage(userType) {
+  const defaultImages = {
+    'Partner': 'https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/logos/d5zo5bconzxz1puzijfu',
+    'Customer': 'https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/logos/eiynhkneocoygez6zhyo',
+  };
+  
+  return defaultImages[userType] || 'https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/logos/d5zo5bconzxz1puzijfu';
+}
 
 // DOM Elements
 const carousel = document.getElementById("testimonialCarousel");
@@ -711,7 +766,7 @@ const createCard = (review, index) => {
 
 // Function to show a specific card with door-slide animation
 const showCard = (newIndex, direction = "next") => {
-  if (isAnimating) return;
+  if (isAnimating || !reviews || reviews.length === 0 || newIndex >= reviews.length) return;
   isAnimating = true;
 
   const currentCard = carousel.querySelector(
@@ -757,6 +812,11 @@ const showCard = (newIndex, direction = "next") => {
 
 // Create indicator dots
 const createIndicators = () => {
+  if (!reviews || reviews.length === 0) {
+    console.warn('No reviews available for indicators');
+    return;
+  }
+  
   indicatorsContainer.innerHTML = "";
   reviews.forEach((_, index) => {
     const dot = document.createElement("button");
@@ -788,9 +848,14 @@ const updateIndicators = (activeIndex) => {
 
 // Start automatic cycling
 const startAutoPlay = () => {
+  if (!reviews || reviews.length === 0) {
+    console.warn('Cannot start autoplay: no reviews available');
+    return;
+  }
+  
   stopAutoPlay();
   autoPlayInterval = setInterval(() => {
-    if (!isPaused && !isAnimating) {
+    if (!isPaused && !isAnimating && reviews.length > 0) {
       const nextIndex = (currentIndex + 1) % reviews.length;
       showCard(nextIndex, "next");
     }
@@ -806,19 +871,25 @@ const stopAutoPlay = () => {
 };
 
 // Button event listeners
-prevBtn.addEventListener("click", () => {
-  stopAutoPlay();
-  const prevIndex = (currentIndex - 1 + reviews.length) % reviews.length;
-  showCard(prevIndex, "prev");
-  startAutoPlay();
-});
+if (prevBtn) {
+  prevBtn.addEventListener("click", () => {
+    if (!reviews || reviews.length === 0) return;
+    stopAutoPlay();
+    const prevIndex = (currentIndex - 1 + reviews.length) % reviews.length;
+    showCard(prevIndex, "prev");
+    startAutoPlay();
+  });
+}
 
-nextBtn.addEventListener("click", () => {
-  stopAutoPlay();
-  const nextIndex = (currentIndex + 1) % reviews.length;
-  showCard(nextIndex, "next");
-  startAutoPlay();
-});
+if (nextBtn) {
+  nextBtn.addEventListener("click", () => {
+    if (!reviews || reviews.length === 0) return;
+    stopAutoPlay();
+    const nextIndex = (currentIndex + 1) % reviews.length;
+    showCard(nextIndex, "next");
+    startAutoPlay();
+  });
+}
 
 // Add CSS styles
 const addStyles = () => {
@@ -858,24 +929,34 @@ const addStyles = () => {
   document.head.appendChild(style);
 };
 
-// Initialize
-document.addEventListener("DOMContentLoaded", () => {
-  addStyles();
-  createIndicators();
-  carousel.innerHTML = "";
-  const initialCard = createCard(reviews[0], 0);
-  initialCard.style.opacity = "1";
-  initialCard.style.transform = "translateX(0)";
-  carousel.appendChild(initialCard);
-  updateIndicators(0);
-  startAutoPlay();
-});
-
-if (
-  document.readyState === "complete" ||
-  document.readyState === "interactive"
-) {
-  setTimeout(() => {
+// Function to initialize testimonials carousel
+async function initializeTestimonials() {
+  // Check if required DOM elements exist
+  if (!carousel || !indicatorsContainer) {
+    console.warn('Testimonial carousel elements not found');
+    return;
+  }
+  
+  try {
+    // Show loading state in testimonials section
+    carousel.innerHTML = '<div class="absolute inset-0 flex items-center justify-center"><div class="loading-spinner"></div><p class="ml-4 text-gray-600">Loading testimonials...</p></div>';
+    
+    // Fetch testimonials from API
+    const apiTestimonials = await fetchTestimonials();
+    reviews = apiTestimonials;
+    
+    if (reviews.length === 0) {
+      console.warn('No testimonials found, using default reviews');
+      reviews = defaultReviews;
+    }
+    
+    // Ensure we have at least one review to display
+    if (reviews.length === 0) {
+      carousel.innerHTML = '<div class="absolute inset-0 flex items-center justify-center"><p class="text-gray-600">No testimonials available</p></div>';
+      return;
+    }
+    
+    // Initialize carousel with fetched data
     addStyles();
     createIndicators();
     carousel.innerHTML = "";
@@ -885,5 +966,39 @@ if (
     carousel.appendChild(initialCard);
     updateIndicators(0);
     startAutoPlay();
+    
+    console.log(`Testimonials loaded: ${reviews.length} testimonials`);
+  } catch (error) {
+    console.error('Error initializing testimonials:', error);
+    // Fallback to default reviews
+    reviews = defaultReviews;
+    
+    if (reviews.length > 0) {
+      addStyles();
+      createIndicators();
+      carousel.innerHTML = "";
+      const initialCard = createCard(reviews[0], 0);
+      initialCard.style.opacity = "1";
+      initialCard.style.transform = "translateX(0)";
+      carousel.appendChild(initialCard);
+      updateIndicators(0);
+      startAutoPlay();
+    } else {
+      carousel.innerHTML = '<div class="absolute inset-0 flex items-center justify-center"><p class="text-red-600">Error loading testimonials</p></div>';
+    }
+  }
+}
+
+// Initialize
+document.addEventListener("DOMContentLoaded", () => {
+  initializeTestimonials();
+});
+
+if (
+  document.readyState === "complete" ||
+  document.readyState === "interactive"
+) {
+  setTimeout(() => {
+    initializeTestimonials();
   }, 200);
 }
