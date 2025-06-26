@@ -773,10 +773,80 @@ function setupToggleButtons() {
   });
 }
 
-// Placeholder function for the enquiry form
-// function openEnquiryForm() {
-//   alert("Enquiry form will open here for the selected property");
-// }
+// --- Property Search Bar Logic ---
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Toggle logic
+  const toggles = [
+    document.getElementById('toggle-buy'),
+    document.getElementById('toggle-sell'),
+    document.getElementById('toggle-rent')
+  ];
+  let selectedType = 'buy';
+
+  toggles.forEach((btn, idx) => {
+    btn.addEventListener('click', function () {
+      toggles.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      if (idx === 0) selectedType = 'buy';
+      if (idx === 1) selectedType = 'sell';
+      if (idx === 2) selectedType = 'rent';
+    });
+  });
+
+  // Search button logic
+  const searchBtn = document.getElementById('search-btn');
+  const loader = document.getElementById('search-loader');
+  const locationDropdown = document.getElementById('location-dropdown');
+  const addressInput = document.getElementById('address-input');
+  const propertyContainer = document.getElementById('property-container');
+
+  async function searchProperties() {
+    const location = locationDropdown.value;
+    const address = addressInput.value.trim();
+    let apiUrl = 'https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?sourceWebsite=deccanrealty.com&page=1&pageSize=12';
+    if (selectedType === 'buy') apiUrl += '&isFeatured=true&readyToMove=false';
+    if (selectedType === 'sell') apiUrl += '&isFeatured=false&readyToMove=true';
+    if (selectedType === 'rent') apiUrl += '&isRental=true';
+    if (location) apiUrl += `&city=${encodeURIComponent(location)}`;
+    if (address) apiUrl += `&address=${encodeURIComponent(address)}`;
+
+    propertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10'><div class='loading-spinner'></div><span class='ml-3 text-gray-600'>Searching properties...</span></div>`;
+    loader.classList.remove('hidden');
+    searchBtn.disabled = true;
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+          'Content-Type': 'application/json'
+        }
+      });
+      loader.classList.add('hidden');
+      searchBtn.disabled = false;
+      if (!response.ok) throw new Error('No properties found.');
+      const data = await response.json();
+      const results = data.data && data.data.properties ? data.data.properties : [];
+      if (results.length === 0) throw new Error('No properties found.');
+      propertyContainer.innerHTML = results.map(createTrendingPropertyCardFromAPI).join('');
+    } catch (err) {
+      loader.classList.add('hidden');
+      searchBtn.disabled = false;
+      propertyContainer.innerHTML = `<div class='col-span-full text-center py-10'><div class='error-message mb-4'><i class='fas fa-exclamation-triangle text-orange-500 text-2xl mb-2'></i><p class='text-gray-600'>${err.message || 'Unable to fetch properties.'}</p></div></div>`;
+    }
+  }
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', searchProperties);
+    addressInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchProperties();
+      }
+    });
+  }
+});
 
 // Main initialization
 document.addEventListener("DOMContentLoaded", () => {
