@@ -91,25 +91,28 @@
 
             <!-- Removed More Info button as requested -->
             <!-- BEGIN: Modern Searchbar Section (Inside Hero) -->
-            <div class="w-full flex justify-center items-center z-40 relative mt-6">
-              <form id="property-search-form" class="bg-white bg-opacity-95 rounded-xl shadow-lg px-4 py-4 flex flex-col md:flex-row gap-3 md:gap-4 items-center w-[95vw] max-w-3xl mx-auto md:justify-end">
+            <div class="searchbar w-full flex justify-center items-center z-40 relative mt-6">
+              <form id="property-search-form" class="clsSearchbar bg-[rgba(0,0,0,0.4)] bg-opacity-100 rounded-xl shadow-lg px-4 py-4 flex flex-col md:flex-row gap-3 md:gap-4 items-center w-[95vw] max-w-3xl mx-auto md:justify-end">
                 <!-- Buy/Sell/Rent toggles -->
                 <div class="flex gap-2 md:gap-3">
-                  <button type="button" id="toggle-buy" class="toggle-btn active text-[#008a46] bg-white hover:bg-[#008a46] hover:text-white transition">Buy</button>
-                  <button type="button" id="toggle-sell" class="toggle-btn text-[#b1923f] bg-white hover:bg-[#b1923f] hover:text-white transition">Sell</button>
-                  <button type="button" id="toggle-rent" class="toggle-btn text-[#ff7c2a] bg-white hover:bg-[#ff7c2a] hover:text-white transition">Rent</button>
+                  <button type="button" id="toggle-buy" class="toggle-btn active text-white" style="background-color:rgb(138,108,44);">Buy</button>
+                  <button type="button" id="toggle-sell" class="toggle-btn text-white bg-white/0 hover:bg-[#b1923f] hover:text-white transition px-1 py-2 text-lg md:text-xl">Sell</button>
+                  <button type="button" id="toggle-rent" class="toggle-btn text-white bg-white/0 hover:bg-[#ff7c2a] hover:text-white transition px-1 py-2 text-lg md:text-xl">Rent</button>
                 </div>
                 <!-- All Locations dropdown -->
-                <select id="location-dropdown" class="border rounded px-2 py-2 min-w-[120px] text-gray-800">
+                <select id="location-dropdown" class="form-select border rounded px-2 py-2 min-w-[140px] text-black bg-white">
                   <option value="">All Locations</option>
                   <option value="Bangalore">Bangalore</option>
                   <option value="Hyderabad">Hyderabad</option>
                   <option value="Chennai">Chennai</option>
                 </select>
-                <!-- Address input -->
-                <input id="address-input" type="text" placeholder="Enter address or landmark" class="border rounded px-2 py-2 min-w-[180px] text-gray-800" />
+                <!-- Address input with suggestions -->
+                <div class="relative w-full">
+                  <input id="address-input" type="text" placeholder="Search by City, Address or Postal Code" class="border rounded px-4 py-3 min-w-[180px] w-full text-[1rem] text-black font-semibold bg-white placeholder-gray-500" autocomplete="off" />
+                  <div id="address-suggestions" class="clsDropdown absolute left-0 right-0 z-50 bg-white border border-gray-200 rounded-b shadow-lg max-h-56 overflow-y-auto hidden" style="display:none;"></div>
+                </div>
                 <!-- Search button -->
-                <button type="button" id="search-btn" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded flex items-center gap-2 font-semibold md:ml-10 ml-4">
+                <button type="button" id="search-btn" class="clsButtonsearch bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded flex items-center gap-2 font-semibold md:ml-10 ml-4">
                   <span>Search</span>
                   <i class="fa fa-search"></i>
                   <span id="search-loader" class="ml-2 hidden"><i class="fa fa-circle-notch fa-spin"></i></span>
@@ -218,7 +221,7 @@
     <div class="download-section flex items-center justify-center bg-gray-200 py-2 px-5 border-t border-b border-gray-300 flex-wrap gap-4">
         <p class="download-text text-lg font-bold text-gray-800 m-0 md:text-xl">Download our app now</p>
         <a href="https://mtestates.com/partners/download/application.html" target="_blank">
-            <img src="https://res.cloudinary.com/dncrproperty-com/image/upload/v1735297005/DNCR-WEB/GooglePlay.webp" alt="Get it on Google Play" class="google-play-img w-36 h-auto cursor-pointer md:w-40">
+            <img src="https://res.cloudinary.com/dncrproperty-com/image/upload_v1735297005/DNCR-WEB/GooglePlay.webp" alt="Get it on Google Play" class="google-play-img w-36 h-auto cursor-pointer md:w-40">
         </a>
     </div>
     </main>

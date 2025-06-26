@@ -846,6 +846,112 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  // --- Address Suggestions Logic (Google Places API) ---
+  let suggestionTimeout;
+  addressInput.addEventListener('input', function() {
+    clearTimeout(suggestionTimeout);
+    const query = addressInput.value.trim();
+    if (query.length < 1) {
+      suggestionBox.innerHTML = '';
+      suggestionBox.classList.add('hidden');
+      return;
+    }
+    suggestionTimeout = setTimeout(() => fetchGooglePlaceSuggestions(query), 250);
+  });
+
+  async function fetchGooglePlaceSuggestions(query) {
+    const apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net//master-details/getgoogleplaces?text=${encodeURIComponent(query)}&city=India`;
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('No suggestions');
+      const data = await response.json();
+      const results = data.predictions || [];
+      if (results.length === 0) {
+        suggestionBox.innerHTML = '<div class="px-4 py-2 text-gray-500">No suggestions found</div>';
+        suggestionBox.className = 'clsDropdown';
+        suggestionBox.style.display = 'block';
+        return;
+      }
+      // Show suggestions below the input
+      suggestionBox.innerHTML = results.map(item => `
+        <div class='clsDropdown px-4 py-2 cursor-pointer hover:bg-[#f5f5f5] border-b border-gray-100 flex flex-col' data-description='${item.description.replace(/'/g, "&apos;")}' tabindex="0" style='color:#222; background:#fff; font-size:1rem;'>
+          <span class='font-semibold' style='color:#008a46;'>${item.structured_formatting.main_text}</span>
+          <span class='text-xs text-gray-500 ml-2'>${item.structured_formatting.secondary_text || ''}</span>
+        </div>`).join('');
+      suggestionBox.className = 'clsDropdown';
+      suggestionBox.style.display = 'block';
+      suggestionBox.style.zIndex = '9999';
+      suggestionBox.style.position = 'absolute';
+      suggestionBox.style.top = '100%';
+      suggestionBox.style.left = '0';
+      suggestionBox.style.right = '0';
+      suggestionBox.style.background = '#fff';
+      suggestionBox.style.border = '1px solid #e5e7eb';
+      suggestionBox.style.borderTop = 'none';
+      suggestionBox.style.boxShadow = '0 4px 16px 0 rgba(0,0,0,0.08)';
+      suggestionBox.style.maxHeight = '220px';
+      suggestionBox.style.overflowY = 'auto';
+    } catch (err) {
+      suggestionBox.innerHTML = '<div class="px-4 py-2 text-gray-500">No suggestions found</div>';
+      suggestionBox.className = 'clsDropdown';
+      suggestionBox.style.display = 'block';
+    }
+  }
+
+  // Keyboard navigation for suggestions
+  suggestionBox.addEventListener('keydown', function(e) {
+    const items = Array.from(suggestionBox.querySelectorAll('.clsDropdown'));
+    const active = document.activeElement;
+    let idx = items.indexOf(active);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (idx < items.length - 1) {
+        items[idx + 1].focus();
+      } else if (items.length > 0) {
+        items[0].focus();
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (idx > 0) {
+        items[idx - 1].focus();
+      } else if (items.length > 0) {
+        items[items.length - 1].focus();
+      }
+    } else if (e.key === 'Enter' && active && active.dataset && active.dataset.description) {
+      addressInput.value = active.dataset.description;
+      suggestionBox.classList.add('hidden');
+      suggestionBox.style.display = 'none';
+      searchProperties();
+    }
+  });
+
+  // Click on suggestion
+  suggestionBox.addEventListener('mousedown', function(e) {
+    let target = e.target;
+    if (!target.dataset.description && target.closest('[data-description]')) {
+      target = target.closest('[data-description]');
+    }
+    if (target && target.dataset && target.dataset.description) {
+      addressInput.value = target.dataset.description;
+      suggestionBox.classList.add('hidden');
+      suggestionBox.style.display = 'none';
+      searchProperties();
+    }
+  });
+  // Hide suggestions on blur
+  addressInput.addEventListener('blur', function() {
+    setTimeout(() => {
+      suggestionBox.classList.add('hidden');
+      suggestionBox.style.display = 'none';
+    }, 200);
+  });
 });
 
 // Main initialization
@@ -1325,7 +1431,7 @@ async function initializeTestimonials() {
   if (!carousel || !indicatorsContainer) {
     console.warn('Testimonial carousel elements not found');
     return;
-  }
+ }
   
   try {
     // Show loading state in testimonials section
@@ -1353,7 +1459,7 @@ async function initializeTestimonials() {
     const initialCard = createCard(reviews[0], 0);
     initialCard.style.opacity = "1";
     initialCard.style.transform = "translateX(0)";
-    carousel.appendChild(initialCard);
+       carousel.appendChild(initialCard);
     updateIndicators(0);
     startAutoPlay();
     
