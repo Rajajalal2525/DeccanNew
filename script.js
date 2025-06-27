@@ -1844,3 +1844,66 @@ if (
     initializeTestimonials();
   }, 200);
 }
+
+// --- OTP Verification for Signup ---
+document.getElementById('verify-otp-signup').onclick = async function(event) {
+  event.preventDefault();
+  const btn = document.getElementById('verify-otp-signup');
+  const spinner = document.getElementById('otp-signup-spinner');
+  if (spinner) spinner.style.display = 'inline-block';
+  btn.disabled = true;
+  // Use signup email
+  const email = document.getElementById('email-signup').value.trim();
+  const otp = document.getElementById('otp-input-signup').value.trim();
+  const otpError = document.getElementById('otp-error-signup');
+  if (!otp) {
+    otpError.style.display = 'block';
+    otpError.textContent = 'Please enter the OTP.';
+    if (spinner) spinner.style.display = 'none';
+    btn.disabled = false;
+    return;
+  } else {
+    otpError.style.display = 'none';
+  }
+  try {
+    const res = await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/otp-verification', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, otp })
+    });
+    const data = await res.json();
+    let token = data.token;
+    if (!token && data.data && typeof data.data === 'string') {
+      token = data.data;
+    }
+    if (data.success && token) {
+      otpError.style.display = 'none';
+      document.getElementById('otp-modal-signup').style.display = 'none';
+      document.getElementById('signup-modal').style.display = 'none';
+      document.getElementById('user-auth-modal').style.display = 'none';
+      if (typeof urlRedirection === 'function') {
+        urlRedirection(token);
+      } else if (window.urlRedirection) {
+        window.urlRedirection(token);
+      } else {
+        window.location.href = `https://devdncrfe.azurewebsites.net/Redirecting/?tok=${token}`;
+      }
+      return;
+    } else if (data.success) {
+      otpError.style.display = 'block';
+      otpError.textContent = 'Token not received. Please try again.';
+    } else {
+      otpError.style.display = 'block';
+      otpError.textContent = data.message || 'Invalid OTP!';
+    }
+  } catch (err) {
+    otpError.style.display = 'block';
+    otpError.textContent = 'Unable to verify OTP. Try again.';
+  } finally {
+    if (spinner) spinner.style.display = 'none';
+    btn.disabled = false;
+  }
+};
