@@ -915,6 +915,10 @@ window.handleContinueForget = async function() {
 // --- Signup Flow with OTP Modal ---
 window.signup = async function(event) {
   event.preventDefault();
+  const signupBtn = document.getElementById('btn-signup');
+  const signupSpinner = document.getElementById('signup-spinner');
+  if (signupSpinner) signupSpinner.style.display = 'inline-block';
+  signupBtn.disabled = true;
   // Get form values
   const email = document.getElementById('email-signup').value.trim();
   const name = document.getElementById('name-signup').value.trim();
@@ -982,12 +986,25 @@ window.signup = async function(event) {
       msgBox.textContent = 'Unable to signup. Try again.';
       msgBox.style.display = 'block';
     }
+  } finally {
+    if (signupSpinner) signupSpinner.style.display = 'none';
+    signupBtn.disabled = false;
   }
 };
 
 // --- OTP Verification for OTP-only Modal (Handles both Login and Signup) ---
 document.getElementById('verify-otp-only').onclick = async function(event) {
   event.preventDefault();
+  const btn = document.getElementById('verify-otp-only');
+  let spinner = document.getElementById('otp-only-spinner');
+  if (!spinner) {
+    spinner = document.createElement('i');
+    spinner.className = 'fa fa-circle-notch fa-spin ml-1';
+    spinner.id = 'otp-only-spinner';
+    btn.appendChild(spinner);
+  }
+  spinner.style.display = 'inline-block';
+  btn.disabled = true;
   // Use signup email if present, else fallback to login email
   const email = window.signupEmailForOtp || document.getElementById('email-login').value.trim();
   const otp = document.getElementById('otp-input-only').value.trim();
@@ -995,6 +1012,8 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
   if (!otp) {
     otpError.style.display = 'block';
     otpError.textContent = 'Please enter the OTP.';
+    spinner.style.display = 'none';
+    btn.disabled = false;
     return;
   } else {
     otpError.style.display = 'none';
@@ -1023,12 +1042,10 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
       } else if (window.urlRedirection) {
         window.urlRedirection(token);
       } else {
-        // Fallback: direct JS redirect
         window.location.href = `https://devdncrfe.azurewebsites.net/Redirecting/?tok=${token}`;
       }
       return;
     } else if (data.success) {
-      // Success but no token (should not happen, but fallback)
       otpError.style.display = 'block';
       otpError.textContent = 'Token not received. Please try again.';
     } else {
@@ -1038,6 +1055,9 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
   } catch (err) {
     otpError.style.display = 'block';
     otpError.textContent = 'Unable to verify OTP. Try again.';
+  } finally {
+    spinner.style.display = 'none';
+    btn.disabled = false;
   }
 };
 
@@ -1383,9 +1403,11 @@ const serviceContainer = document.getElementById("service-container");
         }
         
         // Show appropriate error message
+       
         serviceContainer.innerHTML = `
           <div class="col-span-full ${errorClass}">
             <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+
             <p>${errorMessage}</p>
           </div>`;
         

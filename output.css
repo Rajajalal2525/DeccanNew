@@ -384,6 +384,9 @@
   .mr-2 {
     margin-right: calc(var(--spacing) * 2);
   }
+  .mr-5 {
+    margin-right: calc(var(--spacing) * 5);
+  }
   .mb-1 {
     margin-bottom: calc(var(--spacing) * 1);
   }
@@ -913,6 +916,9 @@
   }
   .bg-\[\#E8E8E8\] {
     background-color: #E8E8E8;
+  }
+  .bg-\[\#b192f4\] {
+    background-color: #b192f4;
   }
   .bg-\[\#b1923f\] {
     background-color: #b1923f;
@@ -2636,6 +2642,11 @@
     @media (width >= 80rem) {
       font-size: var(--text-lg);
       line-height: var(--tw-leading, var(--text-lg--line-height));
+    }
+  }
+  .xl\:text-\[18px\] {
+    @media (width >= 80rem) {
+      font-size: 18px;
     }
   }
   .xl\:text-\[20px\] {
