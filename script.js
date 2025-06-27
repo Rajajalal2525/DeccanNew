@@ -523,7 +523,7 @@ function createTrendingPropertyCardFromAPI(property) {
         <div class="relative">
             <img src="${imageUrl}" alt="${property.propertyName}" 
                  class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
-            <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Rental</span>
+            <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Trending</span>
         </div>
         
         <!-- Content Section -->
@@ -1391,6 +1391,9 @@ const serviceContainer = document.getElementById("service-container");
     fetchExpertiseData()
       .then(propertiesData => {
 
+
+
+
         if (propertiesData && propertiesData.length > 0) {
           // Limit to 4 items for display
           const limitedData = propertiesData.slice(0, 4);
@@ -2019,7 +2022,6 @@ window.initAddressAutocomplete = function() {
     }, 200);
   });
 };
-
 document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('address-input') && document.getElementById('address-suggestions')) {
     window.initAddressAutocomplete();
