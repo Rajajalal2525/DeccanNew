@@ -1145,6 +1145,25 @@ document.addEventListener('DOMContentLoaded', function() {
   let debounceTimeout;
 
   if (locationInput && suggestionBox) {
+    // Style the suggestion box for absolute positioning and max height
+    suggestionBox.style.position = 'absolute';
+    suggestionBox.style.left = '0';
+    suggestionBox.style.right = '0';
+    suggestionBox.style.top = '100%';
+    suggestionBox.style.background = '#fff';
+    suggestionBox.style.border = '1px solid #e5e7eb';
+    suggestionBox.style.boxShadow = '0 4px 16px 0 rgba(0,0,0,0.08)';
+    suggestionBox.style.maxHeight = '180px';
+    suggestionBox.style.overflowY = 'auto';
+    suggestionBox.style.zIndex = '9999';
+    suggestionBox.style.display = 'none';
+
+    // Ensure parent .input_wrap is relative for absolute positioning
+    var inputWrap = locationInput.closest('.input_wrap');
+    if (inputWrap) {
+      inputWrap.style.position = 'relative';
+    }
+
     locationInput.addEventListener('input', function() {
       const query = locationInput.value.trim();
       clearTimeout(debounceTimeout);
