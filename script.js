@@ -773,6 +773,74 @@ function setupToggleButtons() {
   });
 }
 
+// ===================== LOGIN/SIGNUP MODAL FUNCTIONALITY =====================
+
+// Open Login Modal
+function openLoginModal() {
+  const modal = document.getElementById('user-auth-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    // Reset forms and errors if needed
+    if (document.getElementById('login-modal')) {
+      document.getElementById('login-modal').style.display = 'block';
+    }
+    if (document.getElementById('signup-modal')) {
+      document.getElementById('signup-modal').style.display = 'none';
+    }
+  }
+}
+
+// Close Login Modal
+function closeLoginModal() {
+  const modal = document.getElementById('user-auth-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+// Switch to Signup Modal
+function openSignupModal() {
+  if (document.getElementById('login-modal')) {
+    document.getElementById('login-modal').style.display = 'none';
+  }
+  if (document.getElementById('signup-modal')) {
+    document.getElementById('signup-modal').style.display = 'block';
+  }
+}
+
+// Attach event listeners after DOM is loaded
+window.addEventListener('DOMContentLoaded', function() {
+  // Login button in nav
+  document.querySelectorAll('a[href="#"], a#open-login-modal').forEach(function(btn) {
+    if(btn.textContent.trim().toLowerCase() === 'login') {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        openLoginModal();
+      });
+    }
+  });
+  // Close modal button
+  var closeBtn = document.getElementById('close-user-auth-modal');
+  if (closeBtn) {
+    closeBtn.onclick = closeLoginModal;
+  }
+  // Close modal on outside click
+  var modal = document.getElementById('user-auth-modal');
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if(e.target === this) closeLoginModal();
+    });
+  }
+  // Sign Up link inside modal
+  var signupLink = document.querySelector('#bottom-signUp a');
+  if (signupLink) {
+    signupLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      openSignupModal();
+    });
+  }
+});
+
 // --- Property Search Bar Logic ---
 
 document.addEventListener('DOMContentLoaded', function () {

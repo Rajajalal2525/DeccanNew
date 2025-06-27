@@ -230,5 +230,126 @@
       <!-- Footer -->
       <div id="footer-container"></div>
     </footer>
+
+    <!-- User Auth Modal (Login/Signup) -->
+    <div id="user-auth-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+      <div style="background:#fffbe9; border-radius:16px; max-width:410px; width:95vw; margin:auto; position:relative; box-shadow:0 8px 32px rgba(0,0,0,0.18); border:1.5px solid #b1923f;">
+        <button id="close-user-auth-modal" style="position:absolute; top:10px; right:10px; font-size:24px; background:none; border:none; cursor:pointer; color:#b1923f;">&times;</button>
+        <!-- Login/Signup HTML START -->
+        <div class="modal-body" id="login-modal" style="padding: 0px; background: #fffbe9; border-radius: 16px;">
+          <h3 style="text-align:center; color:#b1923f; font-weight:700; margin-top:24px; margin-bottom:8px; letter-spacing:1px;">Login to Deccan Realty</h3>
+          <h5 class="text-danger text-center ng-star-inserted" id="invalidUser-login" style="display: none">Password looks incorrect!</h5>
+          <h5 class="text-success text-center" id="checkemailresetpwd" style="display: none">Check your mailbox to Reset your password</h5>
+          <h5 class="text-danger text-center" id="mailnotsent" style="display: none"></h5>
+          <form name="loginForm" style="padding: 17px; margin-top: -18px">
+            <div class="form-group">
+              <div class="input_wrap" id="loginEmail">
+                <input type="text" autofocus class="form-control" name="Email" id="email-login" onBlur="addRequired('email-login');removeValidation(false)" oninput="removeValidation(true);" style="border: 1px solid #b1923f; border-radius: 6px; padding: 12px; width: 100%; margin-top: 15px; background-color: #fff; color: #495057; font-size: 15px; height: 45px;" placeholder="Your registered email" />
+              </div>
+              <small class="text-danger" style="display: none" id="email-req-login">* Required</small>
+              <small class="text-danger" style="display: none; color: red" id="notValidEmailLogin">* Invalid Email</small>
+              <small class="text-danger" style="display: none" id="emaildoesnotexist-login">* Email id does not Exist in system, Check your email id</small>
+            </div>
+            <div class="modal-body" id="otp-modal" style="display: none">
+              <h5 style="color: #b1923f">Check your Email for the OTP.</h5>
+              <h5 class="text-danger text-center" id="otp-error" style="display: none">Invalid OTP!</h5>
+              <div class="form-group">
+                <input type="text" placeholder="Enter OTP" required class="form-control" id="otp-input" maxlength="6" onkeypress="return allowOnlyNumbers(event)" oninput="validateInput(this, 'otp-warning-login')" style="border: 1px solid #b1923f; border-radius: 6px; padding: 12px; width: 100%; background-color: #fff; color: #495057; font-size: 15px; height: 45px;" />
+                <small id="otp-warning-login" style="color: red; display: none"></small>
+              </div>
+              <div>
+                <button id="verify-otp-login" class="btn" style="background:#b1923f; color:white; width:100%; font-weight:600; border-radius:6px; margin-top:10px;" onClick="verifyOtp(event)">Verify OTP</button>
+              </div>
+            </div>
+          </form>
+          <div>
+            <button class="mx-auto btn-lg clsSearchbutton" style="background:#b1923f; color:white; width:100%; font-weight:600; border-radius:6px; margin-top:10px;" onClick="nextOrPreviousStep(true)" id="nextStepButton">Continue <i class="fa fa-circle-notch bg-theme-search fa-spin ml-1" id="nextStepButton1" style="display: none"></i></button>
+            <button class="mx-auto btn-lg searchbutton" style="display: none;background:#b1923f; color:white; width:100%; font-weight:600; border-radius:6px; margin-top:10px;" onClick="login()" id="btn-login">Login</button>
+            <button class="mx-auto searchbutton btn-lg" onClick="forgetPassword()" id="continue-forget" style="display: none;background:#b1923f; color:white; width:100%; font-weight:600; border-radius:6px; margin-top:10px;">Continue <i class="fa fa-circle-notch bg-theme-search fa-spin ml-1" id="login-spinner" style="display: none"></i></button>
+          </div>
+          <br />
+          <div class="line-thin" style="border-top:1px solid #e0d6c3; margin:18px 0;"></div>
+          <div class="d-flex justify-content-center" id="bottom-signUp" style="background-color: #f0f0f0; padding: 15px; border-radius: 0 0 16px 16px; font-size:15px;">New to deccanrealty.com? <a class="ml-2" style="cursor: pointer; color: #b1923f; font-weight:600;" onClick="opensignup()"><u>Sign Up</u></a></div>
+        </div>
+        <!-- Buyer Signup modal -->
+        <div id="signup-modal" style="display: none; background-color: #fffbe9; border-radius:16px;" class="px-3">
+          <h3 style="text-align:center; color:#b1923f; font-weight:700; margin-top:24px; margin-bottom:8px; letter-spacing:1px;">Sign Up to Deccan Realty</h3>
+          <form name="signupForm">
+            <h5 class="text-danger text-center ng-star-inserted" id="invalidrespone-signup" style="display: none"></h5>
+            <h5 class="text-success text-center ng-star-inserted" id="validrespone-signup" style="display: none">Check your mailbox for OTP</h5>
+            <div id="field-signup">
+              <div class="form-group">
+                <div class="input_wrap">
+                  <input type="text" id="email-signup" name="signupEmail" class="form-control" required onblur="addRequired('email-signup');isValidEmail('email-signup','notValidEmail')" onfocus="removeValid('notValidEmail')" oninput="signupremoveValidation(true); resetSignupButton();" style="border: 1px solid #b1923f; border-radius: 6px; padding: 12px; width: 100%; margin-top: 15px; background-color: #fff; color: #495057; font-size: 15px; height: 45px;" placeholder="Email" />
+                </div>
+                <small class="text-danger" style="display: none; color: red" id="email-req-signup">* Required</small>
+                <small class="text-danger" style="display: none; color: red" id="emailalreadyexist">* Email id already Exist, Try other email id</small>
+                <small class="text-danger" style="display: none; color: red" id="notValidEmail">* Invalid Email</small>
+              </div>
+              <div class="form-group increment_hidder">
+                <div class="input_wrap">
+                  <input type="text" id="mobile-signup" name="signupMobile" class="form-control" required onblur="addRequired('mobile-signup');isNumberValid('mobile-signup','notValidMobile')" onfocus="removeValid('notValidMobile')" onKeyPress="return event.charCode >= 48 && event.charCode <= 57 && this.value.length < 10" oninput="this.value = this.value.replace(/[^0-9]/g, ''); signupremoveValidation(false);" style="border: 1px solid #b1923f; border-radius: 6px; padding: 12px; width: 100%; margin-top: 15px; background-color: #fff; color: #495057; font-size: 15px; height: 45px;" placeholder="Mobile" maxlength="10" />
+                </div>
+                <small class="text-danger" style="display: none; color: red" id="mobile-req-signup">* Required</small>
+                <small class="text-danger" style="display: none; color: red" id="notValidMobile">* Mobile number should be 10 digit</small>
+              </div>
+              <div class="form-group">
+                <div class="input_wrap">
+                  <input type="text" id="name-signup" name="signupName" class="form-control" required onBlur="addRequired('name-signup')" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, ''); signupremoveValidation(false);" onkeypress="return /[a-zA-Z\s]/i.test(event.key)" style="border: 1px solid #b1923f; border-radius: 6px; padding: 12px; width: 100%; margin-top: 15px; background-color: #fff; color: #495057; font-size: 15px; height: 45px;" placeholder="Name" />
+                </div>
+                <small class="text-danger" style="display: none; color: red" id="name-req-signup">* Required</small>
+              </div>
+              <div class="form-group">
+                <div class="input_wrap">
+                  <input type="text" id="location-signup" name="signupLocation" class="form-control" required onBlur="addRequired('location-signup')" oninput="handleInput(this, 'suggestion_box_signup'); signupremoveValidation(false)" style="border: 1px solid #b1923f; border-radius: 6px; padding: 12px; width: 100%; margin-top: 15px; background-color: #fff; color: #495057; font-size: 15px; height: 45px;" placeholder="Your current location" />
+                  <div id="suggestion_box_signup" class="suggestion_list"></div>
+                </div>
+                <small class="text-danger" style="display: none; color: red" id="location-req-signup">* Required</small>
+              </div>
+            </div>
+            <div class="row" id="tandcbox" style="align-items: baseline; justify-content: center">
+              <input type="checkbox" id="accpectance" name="accpectance" />
+              <p class="col-md-11" style="font-size: 14px">I agree to deccanrealty.com <a href="./terms_conditions.html" target="_blank" style="color:#b1923f;"><u>T&C</u></a>, <a target="_blank" href="./privacy_policy.html" style="color:#b1923f;"><u>Privacy Policy</u></a> & Cookie Policy.</p>
+            </div>
+            <small class="text-danger" style="display: none; color: red" id="terms-req-signup"></small>
+            <div class="d-flex signupBTN">
+              <button class="btn btn float-right align-items-center login-button mx-auto searchbutton" style="width: 100%; background:#b1923f; color:white; font-weight:600; border-radius:6px; margin-top:10px;" type="submit" onClick="signup(event)" id="btn-signup">Sign Up</button>
+              <div class="modal-body" id="otp-modal-signup" style="display: none">
+                <h5 class="text-danger text-center" id="otp-error-signup" style="display: none">Invalid OTP!</h5>
+                <div class="form-group">
+                  <input type="text" placeholder="Enter OTP" required class="form-control" id="otp-input-signup" onkeypress="return allowOnlyNumbers(event)" oninput="validateInput(this, 'otp-warning-signup')" maxlength="6" style="border: 1px solid #b1923f; border-radius: 6px; padding: 12px; width: 100%; background-color: #fff; color: #495057; font-size: 15px; height: 45px;" />
+                  <small id="otp-warning-signup" style="color: red; display: none"></small>
+                </div>
+                <div>
+                  <button id="verify-otp-signup" class="btn" style="background:#b1923f; color:white; width:100%; font-weight:600; border-radius:6px; margin-top:10px;" onClick="verifyOtpSignup(event)">Verify OTP</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <!-- Login/Signup HTML END -->
+      </div>
+    </div>
+    <script>
+      // Open modal on Login button click
+      document.addEventListener('DOMContentLoaded', function() {
+        var loginBtns = document.querySelectorAll('a[href="#"], a#open-login-modal');
+        loginBtns.forEach(function(btn) {
+          if(btn.textContent.trim().toLowerCase() === 'login') {
+            btn.addEventListener('click', function(e) {
+              e.preventDefault();
+              document.getElementById('user-auth-modal').style.display = 'flex';
+            });
+          }
+        });
+        document.getElementById('close-user-auth-modal').onclick = function() {
+          document.getElementById('user-auth-modal').style.display = 'none';
+        };
+        // Optional: close modal on outside click
+        document.getElementById('user-auth-modal').addEventListener('click', function(e) {
+          if(e.target === this) this.style.display = 'none';
+        });
+      });
+    </script>
   </body>
 </html>
