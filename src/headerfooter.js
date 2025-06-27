@@ -149,6 +149,27 @@ function createHeader(container) {
       toggleDrawer(false);
     }
   });
+
+  // Add Login modal open logic for both desktop and mobile nav
+  setTimeout(() => {
+    // Desktop nav
+    const loginBtn = header.querySelector('.nav-menu a[href="#"]');
+    if (loginBtn) {
+      loginBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (window.openLoginModal) window.openLoginModal();
+      });
+    }
+    // Mobile nav
+    const loginBtnMobile = header.querySelector('.side-drawer a[href="#"]');
+    if (loginBtnMobile) {
+      loginBtnMobile.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (window.openLoginModal) window.openLoginModal();
+        toggleDrawer(false);
+      });
+    }
+  }, 500);
 }
 // Function to create the Footer
 function createFooter() {

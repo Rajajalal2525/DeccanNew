@@ -729,7 +729,6 @@ function createRentalPropertyCard(property, index) {
   `;
 }
 
-
 // Helper functions
 function setupToggleButtons() {
   // Initialize all description containers
@@ -787,6 +786,11 @@ function openLoginModal() {
     if (document.getElementById('signup-modal')) {
       document.getElementById('signup-modal').style.display = 'none';
     }
+    // Always show OTP continue button for now
+    showOtpContinueButton();
+    // Hide OTP input initially
+    var otpModal = document.getElementById('otp-modal');
+    if (otpModal) otpModal.style.display = 'none';
   }
 }
 
@@ -806,6 +810,17 @@ function openSignupModal() {
   if (document.getElementById('signup-modal')) {
     document.getElementById('signup-modal').style.display = 'block';
   }
+}
+
+// Show/hide correct login modal buttons for OTP flow
+function showOtpContinueButton() {
+  // Hide other buttons
+  var nextStepBtn = document.getElementById('nextStepButton');
+  var loginBtn = document.getElementById('btn-login');
+  var continueForgetBtn = document.getElementById('continue-forget');
+  if (nextStepBtn) nextStepBtn.style.display = 'none';
+  if (loginBtn) loginBtn.style.display = 'none';
+  if (continueForgetBtn) continueForgetBtn.style.display = 'block';
 }
 
 // --- Login Email API Check ---
@@ -877,7 +892,12 @@ window.handleContinueForget = async function() {
       msgBox.style.display = 'block';
       msgBox.style.color = '#008a46';
       msgBox.textContent = 'OTP sent successfully. Check your email.';
-      // Optionally, show OTP input/modal here
+      // Hide login modal, show OTP-only modal
+      document.getElementById('user-auth-modal').style.display = 'none';
+      document.getElementById('otp-only-modal').style.display = 'flex';
+      // Clear OTP input and error
+      document.getElementById('otp-input-only').value = '';
+      document.getElementById('otp-error-only').style.display = 'none';
     } else {
       msgBox.style.display = 'block';
       msgBox.style.color = 'red';
@@ -892,39 +912,184 @@ window.handleContinueForget = async function() {
   }
 };
 
-// Attach event listeners after DOM is loaded
-window.addEventListener('DOMContentLoaded', function() {
-  // Login button in nav
-  document.querySelectorAll('a[href="#"], a#open-login-modal').forEach(function(btn) {
-    if(btn.textContent.trim().toLowerCase() === 'login') {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        openLoginModal();
-      });
+// --- OTP Verification for OTP-only Modal ---
+document.getElementById('verify-otp-only').onclick = async function(event) {
+  event.preventDefault();
+  const email = document.getElementById('email-login').value.trim();
+  const otp = document.getElementById('otp-input-only').value.trim();
+  const otpError = document.getElementById('otp-error-only');
+  if (!otp) {
+    otpError.style.display = 'block';
+    otpError.textContent = 'Please enter the OTP.';
+    return;
+  } else {
+    otpError.style.display = 'none';
+  }
+  try {
+    const res = await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/otp-verification', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, otp })
+    });
+    const data = await res.json();
+    if (data.success) {
+      otpError.style.display = 'none';
+      // Optionally, show a success message or store token: data.data
+      document.getElementById('otp-only-modal').style.display = 'none';
+      alert('Login successful!');
+    } else {
+      otpError.style.display = 'block';
+      otpError.textContent = data.message || 'Invalid OTP!';
     }
-  });
-  // Close modal button
-  var closeBtn = document.getElementById('close-user-auth-modal');
-  if (closeBtn) {
-    closeBtn.onclick = closeLoginModal;
+  } catch (err) {
+    otpError.style.display = 'block';
+    otpError.textContent = 'Unable to verify OTP. Try again.';
   }
-  // Close modal on outside click
-  var modal = document.getElementById('user-auth-modal');
-  if (modal) {
-    modal.addEventListener('click', function(e) {
-      if(e.target === this) closeLoginModal();
-    });
-  }
-  // Sign Up link inside modal
-  var signupLink = document.querySelector('#bottom-signUp a');
-  if (signupLink) {
-    signupLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      openSignupModal();
-    });
-  }
-});
+};
 
+// Close OTP-only modal
+if (document.getElementById('close-otp-only-modal')) {
+  document.getElementById('close-otp-only-modal').onclick = function() {
+    document.getElementById('otp-only-modal').style.display = 'none';
+  };
+}
+
+// --- Login Email API Check ---
+window.checkEmailExistsLogin = async function(input) {
+  const email = input.value.trim();
+  const msgBox = document.getElementById('login-email-api-msg');
+  if (!email) {
+    msgBox.style.display = 'none';
+    return false;
+  }
+  msgBox.style.display = 'block';
+  msgBox.style.color = '#b1923f';
+  msgBox.textContent = 'Checking...';
+  try {
+    const res = await fetch(`https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/check-email?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await res.json();
+    if (data.success && data.data) {
+      msgBox.style.display = 'none';
+      msgBox.textContent = '';
+      return true;
+    } else {
+      msgBox.style.display = 'block';
+      msgBox.style.color = 'red';
+      msgBox.textContent = data.message || 'Email not found';
+      return false;
+    }
+  } catch (err) {
+    msgBox.style.display = 'block';
+    msgBox.style.color = 'red';
+    msgBox.textContent = 'Unable to check email. Try again.';
+    return false;
+  }
+};
+
+// --- OTP Send on Continue (Forget Password) ---
+window.handleContinueForget = async function() {
+  const emailInput = document.getElementById('email-login');
+  const email = emailInput.value.trim();
+  const msgBox = document.getElementById('login-email-api-msg');
+  if (!email) {
+    msgBox.style.display = 'block';
+    msgBox.style.color = 'red';
+    msgBox.textContent = 'Please enter your email.';
+    return;
+  }
+  // First check if email exists
+  const exists = await window.checkEmailExistsLogin(emailInput);
+  if (!exists) return;
+  // If exists, call OTP API
+  const spinner = document.getElementById('login-spinner');
+  if (spinner) spinner.style.display = 'inline-block';
+  try {
+    const res = await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/otp-verification', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      msgBox.style.display = 'block';
+      msgBox.style.color = '#008a46';
+      msgBox.textContent = 'OTP sent successfully. Check your email.';
+      // Hide login modal, show OTP-only modal
+      document.getElementById('user-auth-modal').style.display = 'none';
+      document.getElementById('otp-only-modal').style.display = 'flex';
+      // Clear OTP input and error
+      document.getElementById('otp-input-only').value = '';
+      document.getElementById('otp-error-only').style.display = 'none';
+    } else {
+      msgBox.style.display = 'block';
+      msgBox.style.color = 'red';
+      msgBox.textContent = data.message || 'Failed to send OTP.';
+    }
+  } catch (err) {
+    msgBox.style.display = 'block';
+    msgBox.style.color = 'red';
+    msgBox.textContent = 'Unable to send OTP. Try again.';
+  } finally {
+    if (spinner) spinner.style.display = 'none';
+  }
+};
+
+// --- OTP Verification for OTP-only Modal ---
+document.getElementById('verify-otp-only').onclick = async function(event) {
+  event.preventDefault();
+  const email = document.getElementById('email-login').value.trim();
+  const otp = document.getElementById('otp-input-only').value.trim();
+  const otpError = document.getElementById('otp-error-only');
+  if (!otp) {
+    otpError.style.display = 'block';
+    otpError.textContent = 'Please enter the OTP.';
+    return;
+  } else {
+    otpError.style.display = 'none';
+  }
+  try {
+    const res = await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/otp-verification', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, otp })
+    });
+    const data = await res.json();
+    if (data.success) {
+      otpError.style.display = 'none';
+      // Optionally, show a success message or store token: data.data
+      document.getElementById('otp-only-modal').style.display = 'none';
+      alert('Login successful!');
+    } else {
+      otpError.style.display = 'block';
+      otpError.textContent = data.message || 'Invalid OTP!';
+    }
+  } catch (err) {
+    otpError.style.display = 'block';
+    otpError.textContent = 'Unable to verify OTP. Try again.';
+  }
+};
+
+// Close OTP-only modal
+if (document.getElementById('close-otp-only-modal')) {
+  document.getElementById('close-otp-only-modal').onclick = function() {
+    document.getElementById('otp-only-modal').style.display = 'none';
+  };
+}
 
 // --- Property Search Bar Logic ---
 
@@ -1391,7 +1556,7 @@ const createCard = (review, index) => {
   card.dataset.index = index;
 
   card.innerHTML = `
-    <div class="flex flex-col bg-white border-2 border-[#b1933f60] rounded-xl shadow-lg overflow-hidden transition-all duration-500 ease-in-out cursor-pointer hover:shadow-xl p-4 justify-around h-[400px]">
+    <div class="flex flex-col bg-white border-2 border-[#b1934f60] rounded-xl shadow-lg overflow-hidden transition-all duration-500 ease-in-out cursor-pointer hover:shadow-xl p-4 justify-around h-[400px]">
       <div class="w-full flex justify-center mb-4">
         <img src="${review.image}" alt="${review.name}" class="rounded-lg shadow-md w-32 h-32 object-cover border-4 border-[#b1923f] transition-transform duration-500 ease-in-out transform hover:scale-105"/>
       </div>
