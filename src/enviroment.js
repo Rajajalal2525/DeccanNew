@@ -17,15 +17,6 @@ const hmacToken = 'e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83bac
 // JWT Token Validation Logic
 
 function urlRedirection(token) {
-  // dev--------
-  // window.location.href = `https://devdncrfe.azurewebsites.net/Redirecting/?tok=${token}`
-
-  // Live--------
-  // window.location.href = `https://app.MHRealty/Redirecting/?tok=${token}`
-
-  // // Local--------
-  // window.location.href = `http://localhost:4200/Redirecting/?tok=${token}`
-
-  // new live
-  window.location.href=`https://mtmtestatesapp-cjcxafhrgnenbydc.centralindia-01.azurewebsites.net/Redirecting?tok=${token}`;
+  // Always redirect to dev URL as per requirement
+  window.location.href = `https://devdncrfe.azurewebsites.net/Redirecting/?tok=${token}`;
 }

@@ -1009,16 +1009,28 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
       body: JSON.stringify({ email, otp })
     });
     const data = await res.json();
-    if (data.success) {
+    // Accept token from either data.token or data.data (if string)
+    let token = data.token;
+    if (!token && data.data && typeof data.data === 'string') {
+      token = data.data;
+    }
+    if (data.success && token) {
       otpError.style.display = 'none';
       document.getElementById('otp-only-modal').style.display = 'none';
-      // Show different message for login vs signup
-      if (window.signupEmailForOtp) {
-        alert('Signup successful!');
-        window.signupEmailForOtp = undefined;
+      // Always redirect if token is present
+      if (typeof urlRedirection === 'function') {
+        urlRedirection(token);
+      } else if (window.urlRedirection) {
+        window.urlRedirection(token);
       } else {
-        alert('Login successful!');
+        // Fallback: direct JS redirect
+        window.location.href = `https://devdncrfe.azurewebsites.net/Redirecting/?tok=${token}`;
       }
+      return;
+    } else if (data.success) {
+      // Success but no token (should not happen, but fallback)
+      otpError.style.display = 'block';
+      otpError.textContent = 'Token not received. Please try again.';
     } else {
       otpError.style.display = 'block';
       otpError.textContent = data.message || 'Invalid OTP!';
@@ -1028,6 +1040,7 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
     otpError.textContent = 'Unable to verify OTP. Try again.';
   }
 };
+
 // --- Property Search Bar Logic ---
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1392,12 +1405,12 @@ const serviceContainer = document.getElementById("service-container");
         <div class="loading-spinner"></div>
         <span class="ml-3 text-gray-600">Loading ready-to-move properties...</span>
       </div>
-    `;
+    ` ;
 
     // Fetch ready-to-move properties from API
     fetchReadyToMoveProperties().then(properties => {
       if (properties && properties.length > 0) {
-        // Render API data using the resale property card from API
+               // Render API data using the resale property card from API
         resalePropertiesContainer.innerHTML = properties
           .slice(0, 10) // Show first 10 properties
           .map((property, index) => createResalePropertyCardFromAPI(property, index))
