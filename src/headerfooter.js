@@ -25,6 +25,9 @@ function createHeader(container) {
               HOME LOAN
           </a>
         </li>
+        <li>
+          <a href="#" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">Login</a>
+        </li>
       </ul>
     </div>
     
@@ -46,6 +49,9 @@ function createHeader(container) {
              aria-label="HomeLoan" class="block text-lg font-medium py-2 px-3 border border-white rounded-md text-white hover:text-green-500 hover:bg-black transition">
             Home Loan
           </a>
+        </li>
+        <li class="w-full mt-2">
+          <a href="#" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black text-center">Login</a>
         </li>
       </ul>
     </div>
