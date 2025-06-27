@@ -446,7 +446,7 @@ function createPropertyCard(item) {
             <div class="space-y-3 flex-grow">
                 <div>
                     <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${item.propertyName}</h2>
-                    <p class="text-sm lg:text-black lg:font-semibold flex items-center">
+                    <p class="text-sm lg:text-black lg:text-semibold flex items-center">
                         <i class="fas fa-map-marker-alt mr-2"></i>${item.location}
                     </p>
                     <span class="text-base sm:text-lg lg:text-[16px] font-semibold lg:text-black block">
@@ -1132,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (location) apiUrl += `&city=${encodeURIComponent(location)}`;
     if (address) apiUrl += `&address=${encodeURIComponent(address)}`;
 
-    propertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10'><div class='loading-spinner'></div><span class='ml-3 text-gray-600'>Searching properties...</span></div>`;
+    propertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
     loader.classList.remove('hidden');
     searchBtn.disabled = true;
 
@@ -1364,9 +1364,11 @@ const serviceContainer = document.getElementById("service-container");
   if (newPropertiesContainer) {
     // Show loading spinner
     newPropertiesContainer.innerHTML = `
-      <div class="col-span-full flex justify-center items-center py-10">
-        <div class="loading-spinner"></div>
-        <span class="ml-3 text-gray-600">Loading trending properties...</span>
+      <div class="col-span-full flex justify-center items-center py-10" style="min-height:220px;">
+        <div class="flex flex-col justify-center items-center w-full">
+          <div class="loading-spinner" style="margin:0 auto;"></div>
+          <span class="mt-4 text-gray-600">Loading trending properties...</span>
+        </div>
       </div>
     `;
 
@@ -1391,6 +1393,7 @@ const serviceContainer = document.getElementById("service-container");
       newPropertiesContainer.innerHTML = `
         <div class="col-span-full text-center py-10">
           <div class="error-message mb-4">
+           
             <i class="fas fa-exclamation-triangle text-orange-500 text-2xl mb-2"></i>
             <p class="text-gray-600">Unable to load trending properties. Showing default properties.</p>
           </div>
@@ -1409,7 +1412,7 @@ const serviceContainer = document.getElementById("service-container");
  // Render service cards using API data
   if (serviceContainer) {
     // First show loading state
-    serviceContainer.innerHTML = '<div class="col-span-full text-center py-8"><div class="loading-spinner mx-auto"></div><p class="mt-4 text-gray-600">Loading expertise data...</p></div>';
+    serviceContainer.innerHTML = '<div class="col-span-full flex justify-center items-center py-10" style="min-height:180px;"><div class="flex flex-col justify-center items-center w-full"><div class="loading-spinner" style="margin:0 auto;"></div><p class="mt-4 text-gray-600">Loading expertise data...</p></div></div>';
     
     // Fetch and render API data
     fetchExpertiseData()
@@ -1455,9 +1458,11 @@ const serviceContainer = document.getElementById("service-container");
   if (resalePropertiesContainer) {
     // Show loading spinner
     resalePropertiesContainer.innerHTML = `
-      <div class="col-span-full flex justify-center items-center py-10">
-        <div class="loading-spinner"></div>
-        <span class="ml-3 text-gray-600">Loading ready-to-move properties...</span>
+      <div class="col-span-full flex justify-center items-center py-10" style="min-height:220px;">
+        <div class="flex flex-col justify-center items-center w-full">
+          <div class="loading-spinner" style="margin:0 auto;"></div>
+          <span class="mt-4 text-gray-600">Loading ready-to-move properties...</span>
+        </div>
       </div>
     ` ;
 
@@ -1515,7 +1520,7 @@ const serviceContainer = document.getElementById("service-container");
   // Render rental property listings
   const rentalPropertiesContainer = document.getElementById("rental-property-container");
   if (rentalPropertiesContainer) {
-    rentalPropertiesContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10'><div class='loading-spinner'></div><span class='ml-3 text-gray-600'>Loading rentals...</span></div>`;
+    rentalPropertiesContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Loading rentals...</span></div></div>`;
     const rentalProperties = await fetchRentalProperties();
     if (rentalProperties.length > 0) {
       rentalPropertiesContainer.innerHTML = rentalProperties.map((property, idx) => createTrendingPropertyCardFromAPI(property)).join('');
