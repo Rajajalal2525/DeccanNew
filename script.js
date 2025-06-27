@@ -1095,7 +1095,6 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
 };
 
 // --- Property Search Bar Logic ---
-
 document.addEventListener('DOMContentLoaded', function () {
   // Toggle logic
   const toggles = [
@@ -1120,23 +1119,24 @@ document.addEventListener('DOMContentLoaded', function () {
   const loader = document.getElementById('search-loader');
   const locationDropdown = document.getElementById('location-dropdown');
   const addressInput = document.getElementById('address-input');
-  const propertyContainer = document.getElementById('property-container');
+  const propertyRenderContainer = document.getElementById('property-render-container');
+
+  // Create or get the search results container above the Exceptional Properties section
+  let searchResultsSection = document.getElementById('search-results-section');
+  if (!searchResultsSection) {
+    searchResultsSection = document.createElement('section');
+    searchResultsSection.id = 'search-results-section';
+    searchResultsSection.className = 'mt-10 px-4';
+    propertyRenderContainer.insertBefore(searchResultsSection, propertyRenderContainer.firstChild);
+  }
 
   async function searchProperties() {
-    const location = locationDropdown.value;
-    const address = addressInput.value.trim();
-    let apiUrl = 'https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?sourceWebsite=deccanrealty.com&page=1&pageSize=12';
-    if (selectedType === 'buy') apiUrl += '&isFeatured=true&readyToMove=false';
-    if (selectedType === 'sell') apiUrl += '&isFeatured=false&readyToMove=true';
-    if (selectedType === 'rent') apiUrl += '&isRental=true';
-    if (location) apiUrl += `&city=${encodeURIComponent(location)}`;
-    if (address) apiUrl += `&address=${encodeURIComponent(address)}`;
-
-    propertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
     loader.classList.remove('hidden');
     searchBtn.disabled = true;
+    searchResultsSection.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
 
     try {
+      const apiUrl = 'https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?page=1&pageSize=10&propertyFor=Sale&sourceWebsite=deccanrealty.com';
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -1144,28 +1144,79 @@ document.addEventListener('DOMContentLoaded', function () {
           'Content-Type': 'application/json'
         }
       });
-      loader.classList.add('hidden');
-      searchBtn.disabled = false;
-      if (!response.ok) throw new Error('No properties found.');
       const data = await response.json();
-      const results = data.data && data.data.properties ? data.data.properties : [];
-      if (results.length === 0) throw new Error('No properties found.');
-      propertyContainer.innerHTML = results.map(createTrendingPropertyCardFromAPI).join('');
+      if (data.success && data.data && data.data.properties && data.data.properties.length > 0) {
+        searchResultsSection.innerHTML = `<h2 class='font-extrabold text-2xl text-center text-green-800 mb-4'>Search Results</h2><div id='search-property-container' class='container mx-auto mt-8 mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'></div>`;
+        const searchPropertyContainer = document.getElementById('search-property-container') || searchResultsSection.querySelector('#search-property-container');
+        searchPropertyContainer.innerHTML = data.data.properties.map(property => {
+          let imageUrl = '';
+          try {
+            const imageData = JSON.parse(property.imageURL);
+            if (imageData && imageData.length > 0 && imageData[0].imageUrl) {
+              imageUrl = imageData[0].imageUrl;
+            }
+          } catch (e) {
+            imageUrl = 'https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/images/propertycardimages/Trending/nf5fbl8k6d28y6wfnx0r';
+          }
+          const formattedPrice = property.price ? `₹ ${(property.price / 10000000).toFixed(2)} Cr` : 'Price on Request';
+          const shortDescription = property.shortDescription || property.longDescription || 'Premium property available for viewing';
+          const cleanDescription = shortDescription.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&#160;/g, ' ').trim();
+          return `
+            <div class="w-full bg-white sm:rounded-xl rounded-none overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform flex flex-col justify-between min-h-[550px]">
+              <div class="relative">
+                <img src="${imageUrl}" alt="${property.propertyName}" class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
+                <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Trending</span>
+              </div>
+              <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
+                <div class="space-y-3 flex-grow">
+                  <div>
+                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.propertyName}</h2>
+                    <p class="text-sm lg:text-black lg:text-semibold flex items-center">
+                      <i class="fas fa-map-marker-alt mr-2"></i>${property.locationAddress || property.city}
+                    </p>
+                    <span class="text-base sm:text-lg lg:text-[16px] font-semibold lg:text-black block">
+                      ${formattedPrice}
+                    </span>
+                  </div>
+                  <div class="text-xs sm:text-sm space-y-2">
+                    <p class="flex items-center lg:text-black">
+                        <i class="fas fa-home text-green-500 mr-2"></i>
+                        <span class="line-clamp-2">${property.propertyType || 'Premium Apartments'}</span>
+                    </p>
+                    <p class="flex items-center lg:text-black">
+                        <i class="fas fa-ruler-combined text-green-500 mr-2"></i>
+                        ${property.area || ''} ${property.lmUnit || 'Sq.Ft.'}
+                    </p>
+                    <p class="flex items-center lg:text-black">
+                        <i class="fas fa-calendar-alt text-green-500 mr-2"></i>
+                        ${property.readyToMove ? 'Ready to Move' : 'Under Construction'}
+                    </p>
+                  </div>
+                  <div class="text-sm text-black mt-2">${cleanDescription}</div>
+                </div>
+                <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
+                  <button onclick="openEnquiryForm({ propertyName: '${property.propertyName}' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
+                  <a href="https://api.whatsapp.com/send?phone=917303062845" target="_blank" aria-label="Chat with us on WhatsApp" class="whatsapp-btn text-green-600 text-2xl">
+                    <i class="fab fa-whatsapp"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        searchResultsSection.innerHTML = '<div class="text-center text-gray-600 py-10">No properties found.</div>';
+      }
     } catch (err) {
+      searchResultsSection.innerHTML = '<div class="text-center text-red-600 py-10">Failed to fetch properties. Please try again later.</div>';
+    } finally {
       loader.classList.add('hidden');
       searchBtn.disabled = false;
-      propertyContainer.innerHTML = `<div class='col-span-full text-center py-10'><div class='error-message mb-4'><i class='fas fa-exclamation-triangle text-orange-500 text-2xl mb-2'></i><p class='text-gray-600'>${err.message || 'Unable to fetch properties.'}</p></div></div>`;
     }
   }
 
   if (searchBtn) {
     searchBtn.addEventListener('click', searchProperties);
-    addressInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        searchProperties();
-      }
-    });
   }
 
   // --- Address Suggestions Logic (Google Places API) ---
