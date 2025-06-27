@@ -1148,19 +1148,24 @@ document.addEventListener('DOMContentLoaded', function () {
       if (data.success && data.data && data.data.properties && data.data.properties.length > 0) {
         searchResultsSection.innerHTML = `<h2 class='font-extrabold text-2xl text-center text-green-800 mb-4'>Search Results</h2><div id='search-property-container' class='container mx-auto mt-8 mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'></div>`;
         const searchPropertyContainer = document.getElementById('search-property-container') || searchResultsSection.querySelector('#search-property-container');
-        searchPropertyContainer.innerHTML = data.data.properties.map(property => {
+        searchPropertyContainer.innerHTML = data.data.properties.map((property, idx) => {
           let imageUrl = '';
+          let images = [];
           try {
             const imageData = JSON.parse(property.imageURL);
-            if (imageData && imageData.length > 0 && imageData[0].imageUrl) {
+            if (Array.isArray(imageData) && imageData.length > 0) {
               imageUrl = imageData[0].imageUrl;
+              images = imageData.map(img => img.imageUrl).filter(Boolean);
             }
           } catch (e) {
             imageUrl = 'https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/images/propertycardimages/Trending/nf5fbl8k6d28y6wfnx0r';
+            images = [imageUrl];
           }
           const formattedPrice = property.price ? `₹ ${(property.price / 10000000).toFixed(2)} Cr` : 'Price on Request';
           const shortDescription = property.shortDescription || property.longDescription || 'Premium property available for viewing';
           const cleanDescription = shortDescription.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&#160;/g, ' ').trim();
+          // Unique modal id for each property
+          const modalId = `property-modal-${idx}`;
           return `
             <div class="w-full bg-white sm:rounded-xl rounded-none overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform flex flex-col justify-between min-h-[550px]">
               <div class="relative">
@@ -1195,10 +1200,36 @@ document.addEventListener('DOMContentLoaded', function () {
                   <div class="text-sm text-black mt-2">${cleanDescription}</div>
                 </div>
                 <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
+                  <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="document.getElementById('${modalId}').style.display='flex'">Details</button>
                   <button onclick="openEnquiryForm({ propertyName: '${property.propertyName}' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
-                  <a href="https://api.whatsapp.com/send?phone=917303062845" target="_blank" aria-label="Chat with us on WhatsApp" class="whatsapp-btn text-green-600 text-2xl">
-                    <i class="fab fa-whatsapp"></i>
-                  </a>
+                </div>
+              </div>
+              <!-- Modal for property details -->
+              <div id="${modalId}" class="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center hidden" style="backdrop-filter:blur(2px);">
+                <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full relative p-6 flex flex-col">
+                  <button onclick="document.getElementById('${modalId}').style.display='none'" class="absolute top-2 right-3 text-2xl text-[#b1923f] font-bold">&times;</button>
+                  <h3 class="text-xl font-bold mb-4 text-[#008a46]">${property.propertyName}</h3>
+                  <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                      <div class="w-full h-56 md:h-64 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-2">
+                        <img src="${images[0] || imageUrl}" alt="${property.propertyName}" class="object-contain w-full h-full" />
+                      </div>
+                      <div class="flex gap-2 overflow-x-auto pb-2">
+                        ${images.map(img => `<img src='${img}' alt='${property.propertyName}' class='w-16 h-12 object-cover rounded border cursor-pointer' onclick=\"this.closest('.flex-1').querySelector('img.object-contain').src='${img}'\">`).join('')}
+                      </div>
+                    </div>
+                    <div class="flex-1 flex flex-col gap-2">
+                      <div class="text-gray-700 text-sm mb-2">${cleanDescription}</div>
+                      ${property.videoURL ? `<div class='mb-2'><video src='${property.videoURL}' controls class='w-full rounded-lg'></video></div>` : ''}
+                      <div class="flex flex-col gap-1 text-xs text-gray-600">
+                        <div><b>Location:</b> ${property.locationAddress || property.city}</div>
+                        <div><b>Type:</b> ${property.propertyType || 'N/A'}</div>
+                        <div><b>Area:</b> ${property.area || ''} ${property.lmUnit || 'Sq.Ft.'}</div>
+                        <div><b>Price:</b> ${formattedPrice}</div>
+                        <div><b>Status:</b> ${property.readyToMove ? 'Ready to Move' : 'Under Construction'}</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
