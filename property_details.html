@@ -23,6 +23,7 @@
   </footer>
 
   <script src="./src/headerfooter.js" defer></script>
+  <script src="./src/Enquiryform.js" defer></script>
   <script>
 // Property Details Page Script
 // 1. Get property ID from URL (now supports ?pro=...)
@@ -109,12 +110,9 @@ function renderPropertyDetails(data) {
 
   // Enquiry Now button logic
   document.getElementById('enquiry-now-btn').onclick = function() {
-    // Try to open the enquiry popup (works if Enquiryform.js is loaded)
-    if (window.showEnquiryForm) {
-      window.showEnquiryForm();
-    } else if (typeof EnquiryForm !== 'undefined') {
-      if (!window._enquiryFormInstance) window._enquiryFormInstance = new EnquiryForm();
-      document.getElementById('enquiryOverlay').classList.remove('hidden');
+    // Use the global openEnquiryForm if available
+    if (typeof window.openEnquiryForm === 'function') {
+      window.openEnquiryForm();
     } else {
       alert('Enquiry form not available.');
     }
