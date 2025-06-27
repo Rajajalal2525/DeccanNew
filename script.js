@@ -523,7 +523,7 @@ function createTrendingPropertyCardFromAPI(property) {
         <div class="relative">
             <img src="${imageUrl}" alt="${property.propertyName}" 
                  class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
-            <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Trending</span>
+            <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Rental</span>
         </div>
         
         <!-- Content Section -->
@@ -531,7 +531,7 @@ function createTrendingPropertyCardFromAPI(property) {
             <div class="space-y-3 flex-grow">
                 <div>
                     <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.propertyName}</h2>
-                    <p class="text-sm lg:text-black lg:font-semibold flex items-center">
+                    <p class="text-sm lg:text-black lg:text-semibold flex items-center">
                         <i class="fas fa-map-marker-alt mr-2"></i>${property.locationAddress || property.city}
                     </p>
                     <span class="text-base sm:text-lg lg:text-[16px] font-semibold lg:text-black block">
