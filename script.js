@@ -912,10 +912,84 @@ window.handleContinueForget = async function() {
   }
 };
 
-// --- OTP Verification for OTP-only Modal ---
+// --- Signup Flow with OTP Modal ---
+window.signup = async function(event) {
+  event.preventDefault();
+  // Get form values
+  const email = document.getElementById('email-signup').value.trim();
+  const name = document.getElementById('name-signup').value.trim();
+  const phone = document.getElementById('mobile-signup').value.trim();
+  const location = document.getElementById('location-signup').value.trim();
+  const acceptTerms = document.getElementById('accpectance').checked;
+  const msgBox = document.getElementById('invalidrespone-signup');
+  const validBox = document.getElementById('validrespone-signup');
+  if (msgBox) { msgBox.style.display = 'none'; }
+  if (validBox) { validBox.style.display = 'none'; }
+
+  // Prepare payload
+  const payload = {
+    email,
+    location,
+    name,
+    phone,
+    role: 'Buyer',
+    acceptTerms: true,
+    sourceWebsite: 'deccanrealty.com'
+  };
+
+  try {
+    const res = await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/user-signup', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success && (data.message === 'Signup successful' || data.message === 'Email already exists')) {
+      // Show message
+      if (validBox) {
+        validBox.textContent = data.message;
+        validBox.style.display = 'block';
+      }
+      // Close signup modal, open OTP modal
+      document.getElementById('signup-modal').style.display = 'none';
+      document.getElementById('user-auth-modal').style.display = 'none';
+      document.getElementById('otp-only-modal').style.display = 'flex';
+      // Store signup email for OTP verification
+      window.signupEmailForOtp = email;
+      // Send OTP (if not already sent)
+      await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/otp-verification', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+      // Clear OTP input and error
+      document.getElementById('otp-input-only').value = '';
+      document.getElementById('otp-error-only').style.display = 'none';
+    } else {
+      if (msgBox) {
+        msgBox.textContent = data.message || 'Signup failed.';
+        msgBox.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    if (msgBox) {
+      msgBox.textContent = 'Unable to signup. Try again.';
+      msgBox.style.display = 'block';
+    }
+  }
+};
+
+// --- OTP Verification for Signup (OTP-only Modal) ---
 document.getElementById('verify-otp-only').onclick = async function(event) {
   event.preventDefault();
-  const email = document.getElementById('email-login').value.trim();
+  // Use signup email if present, else fallback to login email
+  const email = window.signupEmailForOtp || document.getElementById('email-login').value.trim();
   const otp = document.getElementById('otp-input-only').value.trim();
   const otpError = document.getElementById('otp-error-only');
   if (!otp) {
@@ -937,9 +1011,9 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
     const data = await res.json();
     if (data.success) {
       otpError.style.display = 'none';
-      // Optionally, show a success message or store token: data.data
       document.getElementById('otp-only-modal').style.display = 'none';
-      alert('Login successful!');
+      alert('Signup successful!');
+      window.signupEmailForOtp = undefined;
     } else {
       otpError.style.display = 'block';
       otpError.textContent = data.message || 'Invalid OTP!';
@@ -949,14 +1023,6 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
     otpError.textContent = 'Unable to verify OTP. Try again.';
   }
 };
-
-// Close OTP-only modal
-if (document.getElementById('close-otp-only-modal')) {
-  document.getElementById('close-otp-only-modal').onclick = function() {
-    document.getElementById('otp-only-modal').style.display = 'none';
-  };
-}
-
 // --- Property Search Bar Logic ---
 
 document.addEventListener('DOMContentLoaded', function () {
