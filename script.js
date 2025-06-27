@@ -957,140 +957,6 @@ if (document.getElementById('close-otp-only-modal')) {
   };
 }
 
-// --- Login Email API Check ---
-window.checkEmailExistsLogin = async function(input) {
-  const email = input.value.trim();
-  const msgBox = document.getElementById('login-email-api-msg');
-  if (!email) {
-    msgBox.style.display = 'none';
-    return false;
-  }
-  msgBox.style.display = 'block';
-  msgBox.style.color = '#b1923f';
-  msgBox.textContent = 'Checking...';
-  try {
-    const res = await fetch(`https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/check-email?email=${encodeURIComponent(email)}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
-        'Content-Type': 'application/json'
-      }
-    });
-    const data = await res.json();
-    if (data.success && data.data) {
-      msgBox.style.display = 'none';
-      msgBox.textContent = '';
-      return true;
-    } else {
-      msgBox.style.display = 'block';
-      msgBox.style.color = 'red';
-      msgBox.textContent = data.message || 'Email not found';
-      return false;
-    }
-  } catch (err) {
-    msgBox.style.display = 'block';
-    msgBox.style.color = 'red';
-    msgBox.textContent = 'Unable to check email. Try again.';
-    return false;
-  }
-};
-
-// --- OTP Send on Continue (Forget Password) ---
-window.handleContinueForget = async function() {
-  const emailInput = document.getElementById('email-login');
-  const email = emailInput.value.trim();
-  const msgBox = document.getElementById('login-email-api-msg');
-  if (!email) {
-    msgBox.style.display = 'block';
-    msgBox.style.color = 'red';
-    msgBox.textContent = 'Please enter your email.';
-    return;
-  }
-  // First check if email exists
-  const exists = await window.checkEmailExistsLogin(emailInput);
-  if (!exists) return;
-  // If exists, call OTP API
-  const spinner = document.getElementById('login-spinner');
-  if (spinner) spinner.style.display = 'inline-block';
-  try {
-    const res = await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/otp-verification', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email })
-    });
-    const data = await res.json();
-    if (data.success) {
-      msgBox.style.display = 'block';
-      msgBox.style.color = '#008a46';
-      msgBox.textContent = 'OTP sent successfully. Check your email.';
-      // Hide login modal, show OTP-only modal
-      document.getElementById('user-auth-modal').style.display = 'none';
-      document.getElementById('otp-only-modal').style.display = 'flex';
-      // Clear OTP input and error
-      document.getElementById('otp-input-only').value = '';
-      document.getElementById('otp-error-only').style.display = 'none';
-    } else {
-      msgBox.style.display = 'block';
-      msgBox.style.color = 'red';
-      msgBox.textContent = data.message || 'Failed to send OTP.';
-    }
-  } catch (err) {
-    msgBox.style.display = 'block';
-    msgBox.style.color = 'red';
-    msgBox.textContent = 'Unable to send OTP. Try again.';
-  } finally {
-    if (spinner) spinner.style.display = 'none';
-  }
-};
-
-// --- OTP Verification for OTP-only Modal ---
-document.getElementById('verify-otp-only').onclick = async function(event) {
-  event.preventDefault();
-  const email = document.getElementById('email-login').value.trim();
-  const otp = document.getElementById('otp-input-only').value.trim();
-  const otpError = document.getElementById('otp-error-only');
-  if (!otp) {
-    otpError.style.display = 'block';
-    otpError.textContent = 'Please enter the OTP.';
-    return;
-  } else {
-    otpError.style.display = 'none';
-  }
-  try {
-    const res = await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/otp-verification', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, otp })
-    });
-    const data = await res.json();
-    if (data.success) {
-      otpError.style.display = 'none';
-      // Optionally, show a success message or store token: data.data
-      document.getElementById('otp-only-modal').style.display = 'none';
-      alert('Login successful!');
-    } else {
-      otpError.style.display = 'block';
-      otpError.textContent = data.message || 'Invalid OTP!';
-    }
-  } catch (err) {
-    otpError.style.display = 'block';
-    otpError.textContent = 'Unable to verify OTP. Try again.';
-  }
-};
-
-// Close OTP-only modal
-if (document.getElementById('close-otp-only-modal')) {
-  document.getElementById('close-otp-only-modal').onclick = function() {
-    document.getElementById('otp-only-modal').style.display = 'none';
-  };
-}
-
 // --- Property Search Bar Logic ---
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1270,6 +1136,65 @@ document.addEventListener('DOMContentLoaded', function () {
       suggestionBox.style.display = 'none';
     }, 200);
   });
+});
+
+// --- Location Autocomplete for Signup ---
+document.addEventListener('DOMContentLoaded', function() {
+  var locationInput = document.getElementById('location-signup');
+  var suggestionBox = document.getElementById('suggestion_box_signup');
+  let debounceTimeout;
+
+  if (locationInput && suggestionBox) {
+    locationInput.addEventListener('input', function() {
+      const query = locationInput.value.trim();
+      clearTimeout(debounceTimeout);
+      if (query.length < 2) {
+        suggestionBox.innerHTML = '';
+        suggestionBox.style.display = 'none';
+        return;
+      }
+      debounceTimeout = setTimeout(function() {
+        fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/master-details/getgoogleplaces?text=' + encodeURIComponent(query), {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.predictions && data.predictions.length > 0) {
+              suggestionBox.innerHTML = data.predictions.map(item => `<div class=\"suggestion-item\" style=\"padding:8px 12px;cursor:pointer;\" data-value=\"${item.description}\">${item.description}</div>`).join('');
+              suggestionBox.style.display = 'block';
+            } else {
+              suggestionBox.innerHTML = '<div style=\"padding:8px 12px;\">No results found</div>';
+              suggestionBox.style.display = 'block';
+            }
+          })
+          .catch(() => {
+            suggestionBox.innerHTML = '<div style=\"padding:8px 12px;\">Error fetching suggestions</div>';
+            suggestionBox.style.display = 'block';
+          });
+      }, 300);
+    });
+    // Click on suggestion
+    suggestionBox.addEventListener('click', function(e) {
+      if (e.target && e.target.classList.contains('suggestion-item')) {
+        locationInput.value = e.target.getAttribute('data-value');
+        suggestionBox.innerHTML = '';
+        suggestionBox.style.display = 'none';
+      }
+    });
+    // Hide suggestions on blur (with delay for click)
+    locationInput.addEventListener('blur', function() {
+      setTimeout(() => { suggestionBox.style.display = 'none'; }, 200);
+    });
+    locationInput.addEventListener('focus', function() {
+      if (suggestionBox.innerHTML.trim() !== '') {
+        suggestionBox.style.display = 'block';
+      }
+    });
+  }
 });
 
 // Main initialization
