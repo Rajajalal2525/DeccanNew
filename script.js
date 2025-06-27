@@ -343,6 +343,39 @@ async function fetchReadyToMoveProperties() {
   }
 }
 
+// Function to fetch rental properties from API
+async function fetchRentalProperties() {
+  try {
+    const authToken = 'e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac';
+    const headers = {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    };
+    const response = await fetch(
+      'https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?page=1&pageSize=10&propertyFor=rent&isFeatured=false&readyToMove=false&sourceWebsite=deccanrealty.com',
+      {
+        method: 'GET',
+        headers: headers
+      }
+    );
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('API Error:', errorData);
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+    }
+    const data = await response.json();
+    if (data.success && data.data && data.data.properties) {
+      return data.data.properties;
+    } else {
+      console.error('API response format is not as expected:', data);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching rental properties:', error);
+    return [];
+  }
+}
+
 // Function to create expertise card from API data
 function createExpertiseCardFromAPI(property) {
   // Extract the first image URL from the JSON string if it exists
@@ -1321,7 +1354,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Main initialization
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // Identify containers by their IDs
   const newPropertiesContainer = document.getElementById("property-container");
  
@@ -1403,7 +1436,6 @@ const serviceContainer = document.getElementById("service-container");
         }
         
         // Show appropriate error message
-       
         serviceContainer.innerHTML = `
           <div class="col-span-full ${errorClass}">
             <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
@@ -1483,21 +1515,17 @@ const serviceContainer = document.getElementById("service-container");
   // Render rental property listings
   const rentalPropertiesContainer = document.getElementById("rental-property-container");
   if (rentalPropertiesContainer) {
-    rentalPropertiesContainer.innerHTML = rentalProperties
-      .map((property, index) => createRentalPropertyCard(property, index))
-      .join("");
+    rentalPropertiesContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10'><div class='loading-spinner'></div><span class='ml-3 text-gray-600'>Loading rentals...</span></div>`;
+    const rentalProperties = await fetchRentalProperties();
+    if (rentalProperties.length > 0) {
+      rentalPropertiesContainer.innerHTML = rentalProperties.map((property, idx) => createTrendingPropertyCardFromAPI(property)).join('');
+    } else {
+      rentalPropertiesContainer.innerHTML = `<div class='col-span-full text-center py-10'><div class='error-message mb-4'><i class='fas fa-exclamation-triangle text-orange-500 text-2xl mb-2'></i><p class='text-gray-600'>No rental properties found.</p></div></div>`;
+    }
   }
-
-  // Setup toggle functionality is now handled within each API response
-  // to ensure it runs after content is loaded
-  // setupToggleButtons();
-
-  // Add error handling for API fetch failures
-  window.addEventListener('error', function(event) {
-    console.error('Global error caught:', event.error);
-    // You can add more sophisticated error handling here if needed
-  });
+  // setupToggleButtons(); // Moved to individual API response handling
 });
+
 // Testimonial javascript code
 // Default fallback reviews data
 const defaultReviews = [
