@@ -579,7 +579,7 @@ function createServiceCard(item) {
 
 function createResalePropertyCard(property, index) {
   return `
-    <div class="w-full bg-white sm:rounded-xl rounded-none overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform flex flex-col justify-between resale-card">
+    <div class="w-full bg-white sm:rounded-xl rounded-none overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform flex flex-col justify-between min-h-[550px]">
         <!-- Image Section -->
         <div class="relative">
             <img src="${property.image}" alt="${property.altText}" 
@@ -985,7 +985,7 @@ window.signup = async function(event) {
   }
 };
 
-// --- OTP Verification for Signup (OTP-only Modal) ---
+// --- OTP Verification for OTP-only Modal (Handles both Login and Signup) ---
 document.getElementById('verify-otp-only').onclick = async function(event) {
   event.preventDefault();
   // Use signup email if present, else fallback to login email
@@ -1012,8 +1012,13 @@ document.getElementById('verify-otp-only').onclick = async function(event) {
     if (data.success) {
       otpError.style.display = 'none';
       document.getElementById('otp-only-modal').style.display = 'none';
-      alert('Signup successful!');
-      window.signupEmailForOtp = undefined;
+      // Show different message for login vs signup
+      if (window.signupEmailForOtp) {
+        alert('Signup successful!');
+        window.signupEmailForOtp = undefined;
+      } else {
+        alert('Login successful!');
+      }
     } else {
       otpError.style.display = 'block';
       otpError.textContent = data.message || 'Invalid OTP!';
