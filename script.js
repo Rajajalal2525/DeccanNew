@@ -808,6 +808,45 @@ function openSignupModal() {
   }
 }
 
+// --- Login Email API Check ---
+window.checkEmailExistsLogin = async function(input) {
+  const email = input.value.trim();
+  const msgBox = document.getElementById('login-email-api-msg');
+  if (!email) {
+    msgBox.style.display = 'none';
+    return;
+  }
+  msgBox.style.display = 'block';
+  msgBox.style.color = '#b1923f';
+  msgBox.textContent = 'Checking...';
+  try {
+    const res = await fetch(`https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/check-email?email=${encodeURIComponent(email)}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await res.json();
+    if (data.success && data.data) {
+      msgBox.style.display = 'none';
+      msgBox.textContent = '';
+    } else {
+      msgBox.style.display = 'block';
+      msgBox.style.color = 'red';
+      msgBox.textContent = data.message || 'Email not found';
+    }
+  } catch (err) {
+    msgBox.style.display = 'block';
+    msgBox.style.color = 'red';
+    msgBox.textContent = 'Unable to check email. Try again.';
+  }
+};
+window.hideLoginEmailApiMsg = function() {
+  var msgBox = document.getElementById('login-email-api-msg');
+  if(msgBox) { msgBox.style.display = 'none'; msgBox.textContent = ''; }
+};
+
 // Attach event listeners after DOM is loaded
 window.addEventListener('DOMContentLoaded', function() {
   // Login button in nav
