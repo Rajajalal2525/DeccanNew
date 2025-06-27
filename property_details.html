@@ -82,12 +82,22 @@ function renderPropertyDetails(data) {
   }
   // Description (prefer long, fallback to short)
   const description = data.longDescription || data.shortDescription || '<i>No description available.</i>';
-  // Render only image, video, and description
+
+  // Buttons below image
+  let buttonsHtml = `
+    <div class="flex gap-3 my-2">
+      <button id="enquiry-now-btn" class="bg-[#b1923f] text-white px-4 py-2 rounded font-semibold hover:bg-[#008a46] transition">Enquiry Now</button>
+      <button id="view-more-images-btn" class="bg-[#008a46] text-white px-4 py-2 rounded font-semibold hover:bg-[#b1923f] transition">View More Images</button>
+    </div>
+  `;
+
+  // Main card HTML
   document.getElementById('main-card').innerHTML = `
     <div class="card mb-4 p-3">
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6" id="image-video-area">
           <img src="${mainImage}" alt="Main Property Image" class="img-fluid rounded mb-2" style="max-height:320px;object-fit:cover;">
+          ${buttonsHtml}
           ${videoEmbed}
         </div>
         <div class="col-md-6">
@@ -96,6 +106,48 @@ function renderPropertyDetails(data) {
       </div>
     </div>
   `;
+
+  // Enquiry Now button logic
+  document.getElementById('enquiry-now-btn').onclick = function() {
+    // Try to open the enquiry popup (works if Enquiryform.js is loaded)
+    if (window.showEnquiryForm) {
+      window.showEnquiryForm();
+    } else if (typeof EnquiryForm !== 'undefined') {
+      if (!window._enquiryFormInstance) window._enquiryFormInstance = new EnquiryForm();
+      document.getElementById('enquiryOverlay').classList.remove('hidden');
+    } else {
+      alert('Enquiry form not available.');
+    }
+  };
+
+  // View More Images button logic
+  document.getElementById('view-more-images-btn').onclick = function() {
+    showImageGallery(images, mainImage);
+  };
+}
+
+// Show image gallery in place of main image/video
+function showImageGallery(images, mainImage) {
+  let galleryHtml = '<div class="flex flex-wrap gap-2 justify-center">';
+  if (images.length === 0) {
+    galleryHtml += '<img src="https://via.placeholder.com/400x300?text=No+Image" class="rounded mb-2" style="max-height:320px;object-fit:cover;">';
+  } else {
+    images.forEach(img => {
+      galleryHtml += `<img src="${img.imageUrl}" alt="Property Image" class="rounded mb-2" style="max-width:140px;max-height:120px;object-fit:cover;">`;
+    });
+  }
+  galleryHtml += '</div>';
+  // Add back button
+  galleryHtml += '<button id="back-to-main-image-btn" class="mt-3 bg-[#b1923f] text-white px-4 py-2 rounded font-semibold hover:bg-[#008a46] transition">Back to Main Image</button>';
+  document.getElementById('image-video-area').innerHTML = `
+    <img src="${mainImage}" alt="Main Property Image" class="img-fluid rounded mb-2" style="max-height:180px;object-fit:cover;">
+    ${galleryHtml}
+  `;
+  document.getElementById('back-to-main-image-btn').onclick = function() {
+    // Re-fetch and re-render property details (restores default view)
+    const id = getPropertyIdFromUrl();
+    fetchPropertyDetails(id);
+  };
 }
 
 // 4. On page load
