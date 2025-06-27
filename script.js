@@ -1200,36 +1200,8 @@ document.addEventListener('DOMContentLoaded', function () {
                   <div class="text-sm text-black mt-2">${cleanDescription}</div>
                 </div>
                 <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
-                  <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="document.getElementById('${modalId}').style.display='flex'">Details</button>
+                  <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="window.location.href='property_details.html?pro=${property.propertyId || property.id}&in=${idx}&slid=false&partnerProperty=false'">Details</button>
                   <button onclick="openEnquiryForm({ propertyName: '${property.propertyName}' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
-                </div>
-              </div>
-              <!-- Modal for property details -->
-              <div id="${modalId}" class="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center hidden" style="backdrop-filter:blur(2px);">
-                <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full relative p-6 flex flex-col">
-                  <button onclick="document.getElementById('${modalId}').style.display='none'" class="absolute top-2 right-3 text-2xl text-[#b1923f] font-bold">&times;</button>
-                  <h3 class="text-xl font-bold mb-4 text-[#008a46]">${property.propertyName}</h3>
-                  <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                      <div class="w-full h-56 md:h-64 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-2">
-                        <img src="${images[0] || imageUrl}" alt="${property.propertyName}" class="object-contain w-full h-full" />
-                      </div>
-                      <div class="flex gap-2 overflow-x-auto pb-2">
-                        ${images.map(img => `<img src='${img}' alt='${property.propertyName}' class='w-16 h-12 object-cover rounded border cursor-pointer' onclick=\"this.closest('.flex-1').querySelector('img.object-contain').src='${img}'\">`).join('')}
-                      </div>
-                    </div>
-                    <div class="flex-1 flex flex-col gap-2">
-                      <div class="text-gray-700 text-sm mb-2">${cleanDescription}</div>
-                      ${property.videoURL ? `<div class='mb-2'><video src='${property.videoURL}' controls class='w-full rounded-lg'></video></div>` : ''}
-                      <div class="flex flex-col gap-1 text-xs text-gray-600">
-                        <div><b>Location:</b> ${property.locationAddress || property.city}</div>
-                        <div><b>Type:</b> ${property.propertyType || 'N/A'}</div>
-                        <div><b>Area:</b> ${property.area || ''} ${property.lmUnit || 'Sq.Ft.'}</div>
-                        <div><b>Price:</b> ${formattedPrice}</div>
-                        <div><b>Status:</b> ${property.readyToMove ? 'Ready to Move' : 'Under Construction'}</div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1371,7 +1343,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
             'Content-Type': 'application/json'
           }
-        })
+               })
           .then(res => res.json())
           .then(data => {
             if (data && data.predictions && data.predictions.length > 0) {
