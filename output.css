@@ -1424,6 +1424,10 @@
   .opacity-100 {
     opacity: 100%;
   }
+  .shadow {
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
   .shadow-2xl {
     --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -1805,6 +1809,11 @@
       border-color: #008a46;
     }
   }
+  .focus\:border-\[\#b1923f\] {
+    &:focus {
+      border-color: #b1923f;
+    }
+  }
   .focus\:bg-\[\#e6f5ed\]\/70 {
     &:focus {
       background-color: color-mix(in oklab, #e6f5ed 70%, transparent);
@@ -1824,6 +1833,11 @@
   .focus\:ring-\[\#008a46\]\/50 {
     &:focus {
       --tw-ring-color: color-mix(in oklab, #008a46 50%, transparent);
+    }
+  }
+  .focus\:ring-\[\#b1923f\] {
+    &:focus {
+      --tw-ring-color: #b1923f;
     }
   }
   .focus\:ring-red-500 {

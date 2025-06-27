@@ -108,8 +108,10 @@
                 </select>
                 <!-- Address input with suggestions -->
                 <div class="relative w-full">
-                  <input id="address-input" type="text" placeholder="Search by City, Address or Postal Code" class="border rounded px-4 py-3 min-w-[180px] w-full text-[1rem] text-black font-semibold bg-white placeholder-gray-500" autocomplete="off" />
-                  <div id="address-suggestions" class="clsDropdown absolute left-0 right-0 z-50 bg-white border border-gray-200 rounded-b shadow-lg max-h-56 overflow-y-auto hidden" style="display:none;"></div>
+                  <input id="address-input" type="text" placeholder="Search by City, Address or Postal Code" class="border rounded-xl px-4 py-3 min-w-[180px] w-full text-[1rem] text-black font-semibold bg-white placeholder-gray-500 shadow focus:ring-2 focus:ring-[#b1923f] focus:border-[#b1923f] transition-all duration-200" autocomplete="off" style="box-shadow:0 2px 8px 0 rgba(185,146,63,0.10);" />
+                  <div id="address-suggestions" class="clsDropdown absolute left-0 right-0 z-50 bg-white border border-[#b1923f] rounded-b-xl shadow-lg max-h-56 overflow-y-auto hidden" style="display:none; box-shadow:0 8px 32px 0 rgba(185,146,63,0.12); border-top:none;">
+                    <!-- Suggestions will appear here -->
+                  </div>
                 </div>
                 <!-- Search button -->
                 <button type="button" id="search-btn" class="clsButtonsearch bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded flex items-center gap-2 font-semibold md:ml-10 ml-4">
