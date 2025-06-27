@@ -814,7 +814,7 @@ window.checkEmailExistsLogin = async function(input) {
   const msgBox = document.getElementById('login-email-api-msg');
   if (!email) {
     msgBox.style.display = 'none';
-    return;
+    return false;
   }
   msgBox.style.display = 'block';
   msgBox.style.color = '#b1923f';
@@ -831,20 +831,65 @@ window.checkEmailExistsLogin = async function(input) {
     if (data.success && data.data) {
       msgBox.style.display = 'none';
       msgBox.textContent = '';
+      return true;
     } else {
       msgBox.style.display = 'block';
       msgBox.style.color = 'red';
       msgBox.textContent = data.message || 'Email not found';
+      return false;
     }
   } catch (err) {
     msgBox.style.display = 'block';
     msgBox.style.color = 'red';
     msgBox.textContent = 'Unable to check email. Try again.';
+    return false;
   }
 };
-window.hideLoginEmailApiMsg = function() {
-  var msgBox = document.getElementById('login-email-api-msg');
-  if(msgBox) { msgBox.style.display = 'none'; msgBox.textContent = ''; }
+
+// --- OTP Send on Continue (Forget Password) ---
+window.handleContinueForget = async function() {
+  const emailInput = document.getElementById('email-login');
+  const email = emailInput.value.trim();
+  const msgBox = document.getElementById('login-email-api-msg');
+  if (!email) {
+    msgBox.style.display = 'block';
+    msgBox.style.color = 'red';
+    msgBox.textContent = 'Please enter your email.';
+    return;
+  }
+  // First check if email exists
+  const exists = await window.checkEmailExistsLogin(emailInput);
+  if (!exists) return;
+  // If exists, call OTP API
+  const spinner = document.getElementById('login-spinner');
+  if (spinner) spinner.style.display = 'inline-block';
+  try {
+    const res = await fetch('https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/otp-verification', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      msgBox.style.display = 'block';
+      msgBox.style.color = '#008a46';
+      msgBox.textContent = 'OTP sent successfully. Check your email.';
+      // Optionally, show OTP input/modal here
+    } else {
+      msgBox.style.display = 'block';
+      msgBox.style.color = 'red';
+      msgBox.textContent = data.message || 'Failed to send OTP.';
+    }
+  } catch (err) {
+    msgBox.style.display = 'block';
+    msgBox.style.color = 'red';
+    msgBox.textContent = 'Unable to send OTP. Try again.';
+  } finally {
+    if (spinner) spinner.style.display = 'none';
+  }
 };
 
 // Attach event listeners after DOM is loaded
@@ -879,6 +924,7 @@ window.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
 
 // --- Property Search Bar Logic ---
 
