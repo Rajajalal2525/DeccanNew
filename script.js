@@ -1102,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('toggle-sell'),
     document.getElementById('toggle-rent')
   ];
-  let selectedType = 'buy';
+  let selectedType = 'buy'; // Default
 
   toggles.forEach((btn, idx) => {
     btn.addEventListener('click', function () {
@@ -1111,6 +1111,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (idx === 0) selectedType = 'buy';
       if (idx === 1) selectedType = 'sell';
       if (idx === 2) selectedType = 'rent';
+      // Auto-search on toggle
+      if (typeof searchProperties === 'function') {
+        searchProperties();
+      }
     });
   });
 
@@ -1136,7 +1140,25 @@ document.addEventListener('DOMContentLoaded', function () {
     searchResultsSection.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
 
     try {
-      const apiUrl = 'https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?page=1&pageSize=10&propertyFor=Sale&sourceWebsite=deccanrealty.com';
+      // Map toggle to API param
+      let propertyFor = 'buy';
+      if (selectedType === 'buy') propertyFor = 'buy';
+      else if (selectedType === 'sell') propertyFor = 'sell';
+      else if (selectedType === 'rent') propertyFor = 'rent';
+
+      // Get location and address
+      const location = locationDropdown.value;
+      const address = addressInput.value.trim();
+
+      // Build API URL
+      let apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?page=1&pageSize=10&propertyFor=${propertyFor}`;
+      // Add location if selected
+      if (location) apiUrl += `&city=${encodeURIComponent(location)}`;
+      // Add address if entered
+      if (address) apiUrl += `&address=${encodeURIComponent(address)}`;
+      // Add other params as needed
+      apiUrl += `&isFeatured=false&readyToMove=false`;
+
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
