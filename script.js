@@ -1102,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('toggle-sell'),
     document.getElementById('toggle-rent')
   ];
-  let selectedType = 'buy'; // Default
+  let selectedType = '';
 
   toggles.forEach((btn, idx) => {
     btn.addEventListener('click', function () {
@@ -1117,6 +1117,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // Set default toggle to none selected
+  toggles.forEach(t => t.classList.remove('active'));
+  selectedType = '';
 
   // Search button logic
   const searchBtn = document.getElementById('search-btn');
@@ -1140,24 +1144,24 @@ document.addEventListener('DOMContentLoaded', function () {
     searchResultsSection.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
 
     try {
-      // Map toggle to API param
-      let propertyFor = 'buy';
-      if (selectedType === 'buy') propertyFor = 'buy';
-      else if (selectedType === 'sell') propertyFor = 'sell';
-      else if (selectedType === 'rent') propertyFor = 'rent';
+      // Only send params that user actually selects/enters
+      const params = new URLSearchParams();
+      params.append('page', '1');
+      params.append('pageSize', '10');
 
-      // Get location and address
+      // Only add propertyFor if a toggle is selected
+      if (selectedType) params.append('propertyFor', selectedType);
+      // Add city if selected
       const location = locationDropdown.value;
-      const address = addressInput.value.trim();
-
-      // Build API URL
-      let apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?page=1&pageSize=10&propertyFor=${propertyFor}`;
-      // Add location if selected
-      if (location) apiUrl += `&city=${encodeURIComponent(location)}`;
+      if (location) params.append('city', location);
       // Add address if entered
-      if (address) apiUrl += `&address=${encodeURIComponent(address)}`;
-      // Add other params as needed
-      apiUrl += `&isFeatured=false&readyToMove=false`;
+      const address = addressInput.value.trim();
+      if (address) params.append('address', address);
+      // Always add these (or remove if you want them optional)
+      params.append('isFeatured', 'false');
+      params.append('readyToMove', 'false');
+
+      const apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?${params.toString()}`;
 
       const response = await fetch(apiUrl, {
         method: 'GET',
