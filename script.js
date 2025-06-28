@@ -1381,29 +1381,255 @@ document.addEventListener("DOMContentLoaded", function () {
       populateSellerTypeAccordion();
       searchPropertyContainer = document.getElementById("search-property-container");
 
-      // --- LIVE FILTERING: Add change event listeners to all filter checkboxes ---
-      // Bedrooms
-      setTimeout(() => {
-        document.querySelectorAll('.bedroom-checkboxes input[type="checkbox"]').forEach(cb => {
-          cb.addEventListener('change', () => window.searchProperties());
-        });
-        // Property Types
-        document.querySelectorAll('.property-type-checkboxes input[type="checkbox"]').forEach(cb => {
-          cb.addEventListener('change', () => window.searchProperties());
-        });
-        // Furnish Types
-        document.querySelectorAll('.furnish-type-checkboxes input[type="checkbox"]').forEach(cb => {
-          cb.addEventListener('change', () => window.searchProperties());
-        });
-        // Seller Types
-        document.querySelectorAll('.seller-type-checkboxes input[type="checkbox"]').forEach(cb => {
-          cb.addEventListener('change', () => window.searchProperties());
-        });
-        // Amount
-        document.querySelectorAll('.p-3 input[type="checkbox"]').forEach(cb => {
-          cb.addEventListener('change', () => window.searchProperties());
-        });
-      }, 200); // Wait for DOM to update
+      // --- FILTERS: Attach event listeners to all filter checkboxes (ALWAYS after populating accordions) ---
+      attachFilterListeners();
+
+      // Add Apply button above filters if not already present
+      let applyBtn = document.getElementById('apply-filters-btn');
+      if (!applyBtn) {
+        applyBtn = document.createElement('button');
+        applyBtn.id = 'apply-filters-btn';
+        applyBtn.textContent = 'Apply';
+        // Small, right-aligned button above filters
+        applyBtn.className = 'absolute right-4 top-4 text-xs px-3 py-1 bg-[#008a46] hover:bg-[#b1923f] text-white font-semibold rounded transition-colors duration-300 shadow-sm';
+        // Insert at the top of filter section
+        const filterSection = document.getElementById('filter-section');
+        if (filterSection) {
+          filterSection.style.position = 'relative';
+          filterSection.insertBefore(applyBtn, filterSection.firstChild);
+        }
+      }
+      applyBtn.onclick = function() {
+        // Mimic the search button click: show loader, disable search button, call searchProperties
+        if (typeof loader !== 'undefined') loader.classList.remove('hidden');
+        if (typeof searchBtn !== 'undefined') searchBtn.disabled = true;
+        if (typeof window.searchProperties === 'function') window.searchProperties();
+      };
+
+// --- GLOBAL FILTER STATE ---
+window.propertyFilterState = {
+  bedrooms: [],
+  propertyTypes: [],
+  furnishTypes: [],
+  sellerTypes: [],
+  amountRanges: [] // array of {min, max}
+};
+// Attach filter listeners for live filtering
+function attachFilterListeners() {
+  // Bedrooms
+  document.querySelectorAll('.bedroom-checkboxes input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const val = cb.value;
+      if (cb.checked) {
+        if (!window.propertyFilterState.bedrooms.includes(val)) window.propertyFilterState.bedrooms.push(val);
+      } else {
+        window.propertyFilterState.bedrooms = window.propertyFilterState.bedrooms.filter(v => v !== val);
+      }
+    });
+  });
+  // Property Types
+  document.querySelectorAll('.property-type-checkboxes input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const val = cb.value;
+      if (cb.checked) {
+        if (!window.propertyFilterState.propertyTypes.includes(val)) window.propertyFilterState.propertyTypes.push(val);
+      } else {
+        window.propertyFilterState.propertyTypes = window.propertyFilterState.propertyTypes.filter(v => v !== val);
+      }
+    });
+  });
+  // Furnish Types
+  document.querySelectorAll('.furnish-type-checkboxes input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const val = cb.value;
+      if (cb.checked) {
+        if (!window.propertyFilterState.furnishTypes.includes(val)) window.propertyFilterState.furnishTypes.push(val);
+      } else {
+        window.propertyFilterState.furnishTypes = window.propertyFilterState.furnishTypes.filter(v => v !== val);
+      }
+    });
+  });
+  // Seller Types
+  document.querySelectorAll('.seller-type-checkboxes input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const val = cb.value;
+      if (cb.checked) {
+        if (!window.propertyFilterState.sellerTypes.includes(val)) window.propertyFilterState.sellerTypes.push(val);
+      } else {
+        window.propertyFilterState.sellerTypes = window.propertyFilterState.sellerTypes.filter(v => v !== val);
+      }
+    });
+  });
+  // Amount
+  document.querySelectorAll('.p-3 input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      // Rebuild amountRanges array
+      const all = Array.from(document.querySelectorAll('.p-3 input[type="checkbox"]'));
+      window.propertyFilterState.amountRanges = all.filter(c => c.checked).map(c => {
+        const label = c.parentElement.textContent.trim();
+        if (label.includes('Below')) return {min:0,max:5000000};
+        if (label.includes('₹50L - ₹1Cr')) return {min:5000000,max:10000000};
+        if (label.includes('₹1Cr - ₹2Cr')) return {min:10000000,max:20000000};
+        if (label.includes('Above')) return {min:20000000,max:null};
+        return null;
+      }).filter(Boolean);
+    });
+  });
+}
+
+// Only update property results, do not re-render filter UI
+async function updatePropertyResults() {
+  const searchPropertyContainer = document.getElementById("search-property-container");
+  if (!searchPropertyContainer) return;
+  searchPropertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
+  try {
+    // Use global filter state
+    const selectedBedrooms = window.propertyFilterState.bedrooms;
+    const selectedPropertyTypes = window.propertyFilterState.propertyTypes;
+    const selectedFurnishTypes = window.propertyFilterState.furnishTypes;
+    const selectedSellerTypes = window.propertyFilterState.sellerTypes;
+    let minAmount = null, maxAmount = null;
+    const selectedRanges = window.propertyFilterState.amountRanges;
+    if (selectedRanges.length > 0) {
+      minAmount = Math.min(...selectedRanges.map(r => r.min));
+      if (selectedRanges.some(r => r.max === null)) {
+        maxAmount = null;
+      } else {
+        maxAmount = Math.max(...selectedRanges.map(r => r.max));
+      }
+    }
+
+    const params = new URLSearchParams();
+    params.append('page', '1');
+    params.append('pageSize', '12');
+    params.append('sourceWebsite', 'Deccanrealty.com');
+    if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
+    if (selectedBedrooms.length > 0) params.append('bhkType', selectedBedrooms.join(','));
+    if (selectedPropertyTypes.length > 0) params.append('propertyTypes', selectedPropertyTypes.join(','));
+    if (selectedFurnishTypes.length > 0) params.append('furnishing', selectedFurnishTypes.join(','));
+    if (selectedSellerTypes.length > 0) params.append('listedBy', selectedSellerTypes.join(','));
+    if (minAmount !== null) params.append('minAmount', minAmount);
+    if (maxAmount !== null) params.append('maxAmount', maxAmount);
+
+    const apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?${params.toString()}`;
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac"
+      },
+    });
+    const data = await response.json();
+    if (
+      data.success &&
+      data.data &&
+      data.data.properties &&
+      data.data.properties.length > 0
+    ) {
+      searchPropertyContainer.innerHTML = data.data.properties
+        .map((property, idx) => {
+          let imageUrl = "";
+          let images = [];
+          try {
+            const imageData = JSON.parse(property.imageURL);
+            if (Array.isArray(imageData) && imageData.length > 0) {
+              imageUrl = imageData[0].imageUrl;
+              images = imageData.map((img) => img.imageUrl).filter(Boolean);
+            }
+          } catch (e) {
+            imageUrl =
+              "https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/images/propertycardimages/Trending/nf5fbl8k6d28y6wfnx0r";
+            images = [imageUrl];
+          }
+          const formattedPrice = property.price
+            ? `₹ ${(property.price / 10000000).toFixed(2)} Cr`
+            : "Price on Request";
+          const shortDescription =
+            property.shortDescription ||
+            property.longDescription ||
+            "Premium property available for viewing";
+          const cleanDescription = shortDescription
+            .replace(/<[^>]*>/g, "")
+            .replace(/&nbsp;/g, " ")
+            .replace(/&#160;/g, " ")
+            .trim();
+          return `
+          <div class="w-full bg-white sm:rounded-xl rounded-none overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform flex flex-col justify-between min-h-[550px] mb-6">
+            <div class="relative">
+              <img src="${imageUrl}" alt="${
+            property.propertyName
+          }" class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
+              <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Trending</span>
+            </div>
+            <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
+              <div class="space-y-3 flex-grow">
+                <div>
+                  <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${
+                    property.propertyName
+                  }</h2>
+                  <p class="text-sm lg:text-black lg:text-semibold flex items-center">
+                    <i class="fas fa-map-marker-alt mr-2"></i>${
+                      property.locationAddress || property.city
+                    }
+                  </p>
+                  <span class="text-base sm:text-lg lg:text-[16px] font-semibold lg:text-black block">
+                    ${formattedPrice}
+                  </span>
+                </div>
+                <div class="text-xs sm:text-sm space-y-2">
+                  <p class="flex items-center lg:text-black">
+                      <i class="fas fa-home text-green-500 mr-2"></i>
+                      <span class="line-clamp-2">${
+                        property.propertyType || "Premium Apartments"
+                      }</span>
+                  </p>
+                  <p class="flex items-center lg:text-black">
+                      <i class="fas fa-ruler-combined text-green-500 mr-2"></i>
+                      ${property.area || ""} ${property.lmUnit || "Sq.Ft."}
+                  </p>
+                  <p class="flex items-center lg:text-black">
+                      <i class="fas fa-calendar-alt text-green-500 mr-2"></i>
+                      ${
+                        property.readyToMove
+                          ? "Ready to Move"
+                          : "Under Construction"
+                      }
+                  </p>
+                </div>
+                <div class="text-sm text-black mt-2">${cleanDescription}</div>
+              </div>
+              <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
+                <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="window.location.href='property_details.html?pro=${
+                  property.propertyId || property.id
+                }&in=${idx}&slid=false&partnerProperty=false'">Details</button>
+                <button onclick="openEnquiryForm({ propertyName: '${
+                  property.propertyName
+                }' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
+              </div>
+            </div>
+          </div>
+        `;
+        })
+        .join("");
+    } else {
+      searchPropertyContainer.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="flex items-center justify-center mb-4">
+            <svg class="w-12 h-12 text-yellow-500 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
+          </div>
+          <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-lg shadow-md max-w-xl text-center">
+            <span class="font-bold text-lg">No properties found</span>
+            <div class="mt-2 text-base">Sorry, we couldn't find any properties matching your search.<br>Try changing your filters or search criteria.</div>
+          </div>
+        </div>
+      `;
+    }
+  } catch (err) {
+    searchPropertyContainer.innerHTML =
+      '<div class="text-center text-red-600 py-10">Failed to fetch properties. Please try again later.</div>';
+  }
+}
     }
     // Always clear and show loading in results
     searchPropertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
@@ -1450,7 +1676,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const params = new URLSearchParams();
       params.append('page', '1');
       params.append('pageSize', '12');
-      params.append('sourceWebsite', 'dncrproperty.com');
+      params.append('sourceWebsite', 'Deccanrealty.com');
       // Only add propertyFor if a toggle is selected
       if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
       // Add bedrooms
@@ -1465,7 +1691,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (minAmount !== null) params.append('minAmount', minAmount);
       if (maxAmount !== null) params.append('maxAmount', maxAmount);
 
-      const apiUrl = `https://mtestatesapi-f0bthnfwbtbxcecu.southindia-01.azurewebsites.net/properties?${params.toString()}`;
+      const apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?${params.toString()}`;
 
       const response = await fetch(apiUrl, {
         method: "GET",
