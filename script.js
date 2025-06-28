@@ -1207,14 +1207,18 @@ document.getElementById("verify-otp-only").onclick = async function (event) {
 
 // --- Property Search Bar Logic ---
 document.addEventListener("DOMContentLoaded", function () {
+
+});
+
+// Make selectedType global so it is accessible in all functions
+let selectedType = '';
+document.addEventListener("DOMContentLoaded", function () {
   // Toggle logic
   const toggles = [
     document.getElementById("toggle-buy"),
     document.getElementById("toggle-sell"),
     document.getElementById("toggle-rent"),
   ];
-  let selectedType = '';
-
   toggles.forEach((btn, idx) => {
     btn.addEventListener('click', function () {
       toggles.forEach(t => t.classList.remove('active'));
@@ -1228,7 +1232,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
-
   // Set default toggle to none selected
   toggles.forEach(t => t.classList.remove('active'));
   selectedType = '';
@@ -1254,156 +1257,221 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  async function searchProperties() {
-    debugger;
+  // Make searchProperties global so it can be called from anywhere
+  window.searchProperties = async function searchProperties() {
+
     loader.classList.remove("hidden");
     searchBtn.disabled = true;
 
-    // Accordion HTML for filters
-    const accordionHTML = `
-    <!-- Accordion Section for Filters -->
-    <aside class="w-full md:w-64 bg-white rounded-xl shadow-md p-4 mb-6 md:mb-0">
-    <h3 class="font-bold text-lg mb-4 text-[#008a46]">Filters</h3>
-    <div class="space-y-2">
-      <!-- Bedrooms -->
-      <details class="group border border-gray-200 rounded-lg overflow-hidden">
-      <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-        Bedrooms
-        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-        </svg>
-      </summary>
-      <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-        <div class="space-y-2 bedroom-checkboxes" id="bedrooms-accordion-content">
-        <!-- Bedrooms checkboxes will be populated here -->
+    // Only render filter UI once
+    let filterSection = document.getElementById("filter-section");
+    let searchPropertyContainer = document.getElementById("search-property-container");
+    if (!filterSection) {
+      // Accordion HTML for filters
+      const accordionHTML = `
+      <aside id="filter-section" class="w-full md:w-64 bg-white rounded-xl shadow-md p-4 mb-6 md:mb-0">
+      <h3 class="font-bold text-lg mb-4 text-[#008a46]">Filters</h3>
+      <div class="space-y-2">
+        <!-- Bedrooms -->
+        <details class="group border border-gray-200 rounded-lg overflow-hidden">
+        <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
+          Bedrooms
+          <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </summary>
+        <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
+          <div class="space-y-2 bedroom-checkboxes" id="bedrooms-accordion-content">
+          <!-- Bedrooms checkboxes will be populated here -->
+          </div>
         </div>
-      </div>
-      </details>
-      <!-- Type of Property -->
-      <details class="group border border-gray-200 rounded-lg overflow-hidden">
-      <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-        Type of Property
-        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-        </svg>
-      </summary>
-      <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-        <div class="space-y-2 property-type-checkboxes" id="property-type-accordion-content">
-          <!-- Property type checkboxes will be populated here -->
+        </details>
+        <!-- Type of Property -->
+        <details class="group border border-gray-200 rounded-lg overflow-hidden">
+        <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
+          Type of Property
+          <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </summary>
+        <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
+          <div class="space-y-2 property-type-checkboxes" id="property-type-accordion-content">
+            <!-- Property type checkboxes will be populated here -->
+          </div>
         </div>
-      </div>
-      </details>
-      <!-- Furnished Type -->
-      <details class="group border border-gray-200 rounded-lg overflow-hidden">
-      <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-        Furnished Type
-        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-        </svg>
-      </summary>
-      <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-        <div class="space-y-2 furnish-type-checkboxes" id="furnish-type-accordion-content">
-          <!-- Furnish type checkboxes will be populated here -->
+        </details>
+        <!-- Furnished Type -->
+        <details class="group border border-gray-200 rounded-lg overflow-hidden">
+        <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
+          Furnished Type
+          <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </summary>
+        <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
+          <div class="space-y-2 furnish-type-checkboxes" id="furnish-type-accordion-content">
+            <!-- Furnish type checkboxes will be populated here -->
+          </div>
         </div>
-      </div>
-      </details>
-      <!-- Listed By -->
-      <details class="group border border-gray-200 rounded-lg overflow-hidden">
-      <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-        Listed By
-        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-        </svg>
-      </summary>
-      <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-        <div class="space-y-2 seller-type-checkboxes" id="seller-type-accordion-content">
-          <!-- Seller type checkboxes will be populated here -->
+        </details>
+        <!-- Listed By -->
+        <details class="group border border-gray-200 rounded-lg overflow-hidden">
+        <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
+          Listed By
+          <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </summary>
+        <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
+          <div class="space-y-2 seller-type-checkboxes" id="seller-type-accordion-content">
+            <!-- Seller type checkboxes will be populated here -->
+          </div>
         </div>
-      </div>
-      </details>
-      <!-- Amount -->
-      <details class="group border border-gray-200 rounded-lg overflow-hidden">
-      <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-        Amount
-        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-        </svg>
-      </summary>
-      <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-        <div class="space-y-2">
-        <label class="flex items-center">
-          <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-          Below ₹50L
-        </label>
-        <label class="flex items-center">
-          <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-          ₹50L - ₹1Cr
-        </label>
-        <label class="flex items-center">
-          <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-          ₹1Cr - ₹2Cr
-        </label>
-        <label class="flex items-center">
-          <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-          Above ₹2Cr
-        </label>
+        </details>
+        <!-- Amount -->
+        <details class="group border border-gray-200 rounded-lg overflow-hidden">
+        <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
+          Amount
+          <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </summary>
+        <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
+          <div class="space-y-2">
+          <label class="flex items-center">
+            <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
+            Below ₹50L
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
+            ₹50L - ₹1Cr
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
+            ₹1Cr - ₹2Cr
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
+            Above ₹2Cr
+          </label>
+          </div>
         </div>
+        </details>
       </div>
-      </details>
-    </div>
-    </aside>
-    `;
+      </aside>
+      `;
 
-    // Main results grid (right side)
-    const resultsGridHTML = `
-      <div class="flex-1" id="search-property-container"></div>
-    `;
+      // Main results grid (right side)
+      const resultsGridHTML = `
+        <div class="flex-1" id="search-property-container"></div>
+      `;
 
-    // Responsive flex layout
-    searchResultsSection.innerHTML = `
-      <div class="flex flex-col md:flex-row gap-6">
-        ${accordionHTML}
-        ${resultsGridHTML}
-      </div>
-    `;
+      // Responsive flex layout
+      searchResultsSection.innerHTML = `
+        <div class="flex flex-col md:flex-row gap-6">
+          ${accordionHTML}
+          ${resultsGridHTML}
+        </div>
+      `;
 
-    // Now call populateBedroomsAccordion after the accordion is in the DOM
-    populateBedroomsAccordion();
-    populatePropertyTypeAccordion();
-    populateFurnishTypeAccordion();
-    populateSellerTypeAccordion();
+      // Now call populateBedroomsAccordion after the accordion is in the DOM
+      populateBedroomsAccordion();
+      populatePropertyTypeAccordion();
+      populateFurnishTypeAccordion();
+      populateSellerTypeAccordion();
+      searchPropertyContainer = document.getElementById("search-property-container");
 
-    const searchPropertyContainer = document.getElementById(
-      "search-property-container"
-    );
+      // --- LIVE FILTERING: Add change event listeners to all filter checkboxes ---
+      // Bedrooms
+      setTimeout(() => {
+        document.querySelectorAll('.bedroom-checkboxes input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', () => window.searchProperties());
+        });
+        // Property Types
+        document.querySelectorAll('.property-type-checkboxes input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', () => window.searchProperties());
+        });
+        // Furnish Types
+        document.querySelectorAll('.furnish-type-checkboxes input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', () => window.searchProperties());
+        });
+        // Seller Types
+        document.querySelectorAll('.seller-type-checkboxes input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', () => window.searchProperties());
+        });
+        // Amount
+        document.querySelectorAll('.p-3 input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', () => window.searchProperties());
+        });
+      }, 200); // Wait for DOM to update
+    }
+    // Always clear and show loading in results
     searchPropertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
 
     try {
-      // Only send params that user actually selects/enters
+      // Collect selected filter values from DOM
+      // Bedrooms
+      const selectedBedrooms = Array.from(document.querySelectorAll('.bedroom-checkboxes input[type="checkbox"]:checked')).map(cb => cb.value);
+      // Property Types
+      const selectedPropertyTypes = Array.from(document.querySelectorAll('.property-type-checkboxes input[type="checkbox"]:checked')).map(cb => cb.value);
+      // Furnish Types
+      const selectedFurnishTypes = Array.from(document.querySelectorAll('.furnish-type-checkboxes input[type="checkbox"]:checked')).map(cb => cb.value);
+      // Seller Types
+      const selectedSellerTypes = Array.from(document.querySelectorAll('.seller-type-checkboxes input[type="checkbox"]:checked')).map(cb => cb.value);
+      // Amount (minAmount, maxAmount)
+      let minAmount = null, maxAmount = null;
+      const amountCheckboxes = Array.from(document.querySelectorAll('.p-3 input[type="checkbox"]'));
+      // Collect all selected ranges
+      const selectedRanges = [];
+      amountCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          const label = cb.parentElement.textContent.trim();
+          if (label.includes('Below')) {
+            selectedRanges.push({ min: 0, max: 5000000 });
+          } else if (label.includes('₹50L - ₹1Cr')) {
+            selectedRanges.push({ min: 5000000, max: 10000000 });
+          } else if (label.includes('₹1Cr - ₹2Cr')) {
+            selectedRanges.push({ min: 10000000, max: 20000000 });
+          } else if (label.includes('Above')) {
+            selectedRanges.push({ min: 20000000, max: null });
+          }
+        }
+      });
+      if (selectedRanges.length > 0) {
+        minAmount = Math.min(...selectedRanges.map(r => r.min));
+        // If any selected range has max=null, treat as open-ended
+        if (selectedRanges.some(r => r.max === null)) {
+          maxAmount = null;
+        } else {
+          maxAmount = Math.max(...selectedRanges.map(r => r.max));
+        }
+      }
+
       const params = new URLSearchParams();
       params.append('page', '1');
-      params.append('pageSize', '10');
-
+      params.append('pageSize', '12');
+      params.append('sourceWebsite', 'dncrproperty.com');
       // Only add propertyFor if a toggle is selected
-      if (selectedType) params.append('propertyFor', selectedType);
-      // Add city if selected
-      const location = locationDropdown.value;
-      if (location) params.append('city', location);
-      // Add address if entered
-      const address = addressInput.value.trim();
-      if (address) params.append('address', address);
-      // Always add these (or remove if you want them optional)
-      params.append('isFeatured', 'false');
-      params.append('readyToMove', 'false');
+      if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
+      // Add bedrooms
+      if (selectedBedrooms.length > 0) params.append('bhkType', selectedBedrooms.join(','));
+      // Add property types
+      if (selectedPropertyTypes.length > 0) params.append('propertyTypes', selectedPropertyTypes.join(','));
+      // Add furnish types
+      if (selectedFurnishTypes.length > 0) params.append('furnishing', selectedFurnishTypes.join(','));
+      // Add seller types
+      if (selectedSellerTypes.length > 0) params.append('listedBy', selectedSellerTypes.join(','));
+      // Add amount
+      if (minAmount !== null) params.append('minAmount', minAmount);
+      if (maxAmount !== null) params.append('maxAmount', maxAmount);
 
-      const apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?${params.toString()}`;
+      const apiUrl = `https://mtestatesapi-f0bthnfwbtbxcecu.southindia-01.azurewebsites.net/properties?${params.toString()}`;
 
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
-          Authorization:
-            "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac",
           "Content-Type": "application/json",
+          "Authorization": "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac"
         },
       });
       const data = await response.json();
@@ -1521,7 +1589,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (searchBtn) {
-    searchBtn.addEventListener("click", searchProperties);
+    searchBtn.addEventListener("click", window.searchProperties);
   }
 
   // --- Address Suggestions Logic (Google Places API) ---
