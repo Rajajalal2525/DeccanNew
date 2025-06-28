@@ -1679,9 +1679,14 @@ async function updatePropertyResults() {
         }
       }
 
+      // Use current page from global state if available
       const params = new URLSearchParams();
-      params.append('page', '1');
-      params.append('pageSize', '12');
+      let pageNum = 1;
+      if (window.propertySearchState && window.propertySearchState.currentPage) {
+        pageNum = window.propertySearchState.currentPage;
+      }
+      params.append('page', String(pageNum));
+      params.append('pageSize', '10');
       params.append('sourceWebsite', 'dncrproperty.com');
       // Only add propertyFor if a toggle is selected
       if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
@@ -1805,17 +1810,22 @@ async function updatePropertyResults() {
           })
           .join("");
 
+        // Render pagination above the cards
+        renderPagination(data.data.pagination, true);
+        // Render property cards
+        // ...existing code...
         // Render pagination below the cards
-        renderPagination(data.data.pagination);
+        renderPagination(data.data.pagination, false);
 
       // Helper to render pagination controls
-      function renderPagination(pagination) {
-        // Remove old pagination if exists
-        const oldPag = searchPropertyContainer.querySelector('.property-pagination');
-        if (oldPag) oldPag.remove();
+      function renderPagination(pagination, isTop) {
         if (!pagination || pagination.totalPages <= 1) return;
+        // Remove old paginations (top or bottom)
+        const selector = isTop ? '.property-pagination-top' : '.property-pagination-bottom';
+        const oldPag = searchPropertyContainer.querySelector(selector);
+        if (oldPag) oldPag.remove();
         const container = document.createElement('div');
-        container.className = 'property-pagination flex justify-center mt-6';
+        container.className = (isTop ? 'property-pagination-top' : 'property-pagination-bottom') + ' flex justify-center mt-6';
         let html = '';
         // Prev button
         html += `<button class="px-3 py-1 mx-1 rounded border bg-white text-[#008a46] font-semibold ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}">Prev</button>`;
@@ -1830,16 +1840,30 @@ async function updatePropertyResults() {
         // Next button
         html += `<button class="px-3 py-1 mx-1 rounded border bg-white text-[#008a46] font-semibold ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">Next</button>`;
         container.innerHTML = html;
-        searchPropertyContainer.appendChild(container);
+        if (isTop) {
+          searchPropertyContainer.prepend(container);
+        } else {
+          searchPropertyContainer.appendChild(container);
+        }
         // Add click listeners
         container.querySelectorAll('button[data-page]').forEach(btn => {
           btn.addEventListener('click', function() {
             const page = parseInt(this.getAttribute('data-page'));
             if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
-              window.searchProperties(page);
-              // Scroll to top of property results after page change
+              // Always use the main searchProperties function for pagination
+              if (!window.propertySearchState) window.propertySearchState = {};
+              window.propertySearchState.currentPage = page;
+              if (typeof window.searchProperties === 'function') {
+                window.searchProperties(page);
+              } else {
+                updatePropertyResults();
+              }
               setTimeout(() => {
-                searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (isTop) {
+                  searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                  searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }
               }, 100);
             }
           });
