@@ -1247,120 +1247,103 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function searchProperties() {
+    debugger;
     loader.classList.remove("hidden");
     searchBtn.disabled = true;
+
     // Accordion HTML for filters
     const accordionHTML = `
-  <!-- Accordion Section for Filters -->
-  <aside class="w-full md:w-64 bg-white rounded-xl shadow-md p-4 mb-6 md:mb-0">
+    <!-- Accordion Section for Filters -->
+    <aside class="w-full md:w-64 bg-white rounded-xl shadow-md p-4 mb-6 md:mb-0">
     <h3 class="font-bold text-lg mb-4 text-[#008a46]">Filters</h3>
     <div class="space-y-2">
-    <details class="group border border-gray-200 rounded-lg overflow-hidden">
+      <!-- Bedrooms -->
+      <details class="group border border-gray-200 rounded-lg overflow-hidden">
       <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-      Property Type
-      <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        Bedrooms
+        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-      </svg>
+        </svg>
       </summary>
       <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-      <div class="space-y-2">
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        Apartment
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        Villa
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        Studio
-        </label>
+        <div class="space-y-2 bedroom-checkboxes" id="bedrooms-accordion-content">
+        <!-- Bedrooms checkboxes will be populated here -->
+        </div>
       </div>
-      </div>
-    </details>
-    <details class="group border border-gray-200 rounded-lg overflow-hidden">
+      </details>
+      <!-- Type of Property -->
+      <details class="group border border-gray-200 rounded-lg overflow-hidden">
       <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-      Price Range
-      <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        Type of Property
+        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-      </svg>
+        </svg>
       </summary>
       <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-      <div class="space-y-2">
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        Below ₹50L
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        ₹50L - ₹1Cr
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        Above ₹1Cr
-        </label>
+        <div class="space-y-2 property-type-checkboxes" id="property-type-accordion-content">
+          <!-- Property type checkboxes will be populated here -->
+        </div>
       </div>
-      </div>
-    </details>
-    <details class="group border border-gray-200 rounded-lg overflow-hidden">
+      </details>
+      <!-- Furnished Type -->
+      <details class="group border border-gray-200 rounded-lg overflow-hidden">
       <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-      BHK Type
-      <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        Furnished Type
+        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-      </svg>
+        </svg>
       </summary>
       <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-      <div class="space-y-2">
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        1 BHK
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        2 BHK
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        3 BHK
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        4+ BHK
-        </label>
+        <div class="space-y-2 furnish-type-checkboxes" id="furnish-type-accordion-content">
+          <!-- Furnish type checkboxes will be populated here -->
+        </div>
       </div>
-      </div>
-    </details>
-    <details class="group border border-gray-200 rounded-lg overflow-hidden">
+      </details>
+      <!-- Listed By -->
+      <details class="group border border-gray-200 rounded-lg overflow-hidden">
       <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
-      Location
-      <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        Listed By
+        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-      </svg>
+        </svg>
       </summary>
       <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
-      <div class="space-y-2">
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        North Bangalore
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        South Bangalore
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        East Bangalore
-        </label>
-        <label class="flex items-center">
-        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
-        West Bangalore
-        </label>
+        <div class="space-y-2 seller-type-checkboxes" id="seller-type-accordion-content">
+          <!-- Seller type checkboxes will be populated here -->
+        </div>
       </div>
+      </details>
+      <!-- Amount -->
+      <details class="group border border-gray-200 rounded-lg overflow-hidden">
+      <summary class="flex justify-between items-center cursor-pointer p-3 font-semibold text-black bg-gray-50 group-open:bg-[#008a46] group-open:text-white transition-all duration-300 ease-in-out hover:bg-gray-100">
+        Amount
+        <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </summary>
+      <div class="p-3 text-sm text-gray-700 bg-white max-h-0 group-open:max-h-96 transition-all duration-500 ease-in-out overflow-hidden">
+        <div class="space-y-2">
+        <label class="flex items-center">
+          <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
+          Below ₹50L
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
+          ₹50L - ₹1Cr
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
+          ₹1Cr - ₹2Cr
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" />
+          Above ₹2Cr
+        </label>
+        </div>
       </div>
-    </details>
+      </details>
     </div>
-  </aside>
+    </aside>
     `;
 
     // Main results grid (right side)
@@ -1375,6 +1358,12 @@ document.addEventListener("DOMContentLoaded", function () {
         ${resultsGridHTML}
       </div>
     `;
+
+    // Now call populateBedroomsAccordion after the accordion is in the DOM
+    populateBedroomsAccordion();
+    populatePropertyTypeAccordion();
+    populateFurnishTypeAccordion();
+    populateSellerTypeAccordion();
 
     const searchPropertyContainer = document.getElementById(
       "search-property-container"
@@ -2449,3 +2438,288 @@ document.addEventListener("DOMContentLoaded", function () {
     window.initAddressAutocomplete();
   }
 });
+
+// Function to fetch BHK types from API
+async function fetchBHKTypes() {
+  try {
+    const response = await fetch(
+      "https://mtestatesapi-f0bthnfwbtbxcecu.southindia-01.azurewebsites.net/master-details?masterName=BHKType",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          Authorization:
+            "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.success && data.data) {
+      return data.data;
+    } else {
+      console.error("API response format is not as expected:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching BHK types:", error);
+    return [];
+  }
+}
+
+// Function to populate Bedrooms accordion with API data
+async function populateBedroomsAccordion() {
+  const bhkTypes = await fetchBHKTypes();
+  const bedroomContainer = document.querySelector(".bedroom-checkboxes");
+
+  if (bhkTypes.length > 0 && bedroomContainer) {
+    bedroomContainer.innerHTML = bhkTypes
+      .map(
+        (type) => `
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="${type.masterDetailName}" />
+        ${type.masterDetailName}
+      </label>
+    `
+      )
+      .join("");
+  } else {
+    // Fallback to static data
+    bedroomContainer.innerHTML = `
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="1BHK" />
+        1 BHK
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="2BHK" />
+        2 BHK
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="3BHK" />
+        3 BHK
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="4BHK+" />
+        4+ BHK
+      </label>
+    `;
+  }
+}
+
+// Function to fetch Property Types from API
+async function fetchPropertyTypes() {
+  try {
+    const response = await fetch(
+      "https://mtestatesapi-f0bthnfwbtbxcecu.southindia-01.azurewebsites.net/master-details?masterName=PropertyType",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          Authorization:
+            "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.success && data.data) {
+      return data.data;
+    } else {
+      console.error("API response format is not as expected:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching Property Types:", error);
+    return [];
+  }
+}
+
+// Function to populate Property Type accordion with API data
+async function populatePropertyTypeAccordion() {
+  const propertyTypes = await fetchPropertyTypes();
+  // Select the property type container using a unique class (add this class in your accordion HTML)
+  const propertyTypeContainer = document.querySelector(
+    ".property-type-checkboxes"
+  );
+
+  if (propertyTypes.length > 0 && propertyTypeContainer) {
+    propertyTypeContainer.innerHTML = propertyTypes
+      .map(
+        (type) => `
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="${type.masterDetailName}" />
+        ${type.masterDetailName}
+      </label>
+    `
+      )
+      .join("");
+  } else if (propertyTypeContainer) {
+    // Fallback to static data
+    propertyTypeContainer.innerHTML = `
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Apartment" />
+        Apartment
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Villa" />
+        Villa
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Studio" />
+        Flat
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Plot" />
+        Plot
+      </label>
+    `;
+  }
+}
+
+// Function to fetch Furnish Types from API
+async function fetchFurnishTypes() {
+  try {
+    const response = await fetch(
+      "https://mtestatesapi-f0bthnfwbtbxcecu.southindia-01.azurewebsites.net/master-details?masterName=FurnishType",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          Authorization:
+            "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.success && data.data) {
+      return data.data;
+    } else {
+      console.error("API response format is not as expected:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching Furnish Types:", error);
+    return [];
+  }
+}
+
+// Function to populate Furnish Type accordion with API data
+async function populateFurnishTypeAccordion() {
+  const furnishTypes = await fetchFurnishTypes();
+  const furnishTypeContainer = document.querySelector(
+    ".furnish-type-checkboxes"
+  );
+
+  if (furnishTypes.length > 0 && furnishTypeContainer) {
+    furnishTypeContainer.innerHTML = furnishTypes
+      .map(
+        (type) => `
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="${type.masterDetailName}" />
+        ${type.masterDetailName}
+      </label>
+    `
+      )
+      .join("");
+  } else if (furnishTypeContainer) {
+    // Fallback to static data
+    furnishTypeContainer.innerHTML = `
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Furnished" />
+        Furnished
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Semi-Furnished" />
+        Semi-Furnished
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Unfurnished" />
+        Unfurnished
+      </label>
+    `;
+  }
+}
+
+// Function to fetch Seller Types from API
+async function fetchSellerTypes() {
+  try {
+    const response = await fetch(
+      "https://mtestatesapi-f0bthnfwbtbxcecu.southindia-01.azurewebsites.net/master-details?masterName=SellerType",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          Authorization:
+            "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.success && data.data) {
+      return data.data;
+    } else {
+      console.error("API response format is not as expected:", data);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching Seller Types:", error);
+    return [];
+  }
+}
+
+// Function to populate Listed By accordion with API data
+async function populateSellerTypeAccordion() {
+  const sellerTypes = await fetchSellerTypes();
+  const sellerTypeContainer = document.querySelector(".seller-type-checkboxes");
+
+  if (sellerTypes.length > 0 && sellerTypeContainer) {
+    sellerTypeContainer.innerHTML = sellerTypes
+      .map(
+        (type) => `
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="${type.masterDetailName}" />
+        ${type.masterDetailName}
+      </label>
+    `
+      )
+      .join("");
+  } else if (sellerTypeContainer) {
+    // Fallback to static data
+    sellerTypeContainer.innerHTML = `
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Owner" />
+        Owner
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Agent" />
+        Agent
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="mr-2 rounded text-[#008a46] focus:ring-[#008a46]" value="Builder" />
+        Builder
+      </label>
+    `;
+  }
+}
