@@ -1213,17 +1213,25 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("toggle-sell"),
     document.getElementById("toggle-rent"),
   ];
-  let selectedType = "buy";
+  let selectedType = '';
 
   toggles.forEach((btn, idx) => {
-    btn.addEventListener("click", function () {
-      toggles.forEach((t) => t.classList.remove("active"));
-      this.classList.add("active");
-      if (idx === 0) selectedType = "buy";
-      if (idx === 1) selectedType = "sell";
-      if (idx === 2) selectedType = "rent";
+    btn.addEventListener('click', function () {
+      toggles.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      if (idx === 0) selectedType = 'buy';
+      if (idx === 1) selectedType = 'sell';
+      if (idx === 2) selectedType = 'rent';
+      // Auto-search on toggle
+      if (typeof searchProperties === 'function') {
+        searchProperties();
+      }
     });
   });
+
+  // Set default toggle to none selected
+  toggles.forEach(t => t.classList.remove('active'));
+  selectedType = '';
 
   // Search button logic
   const searchBtn = document.getElementById("search-btn");
@@ -1371,8 +1379,25 @@ document.addEventListener("DOMContentLoaded", function () {
     searchPropertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
 
     try {
-      const apiUrl =
-        "https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?page=1&pageSize=10&propertyFor=Sale&sourceWebsite=deccanrealty.com";
+      // Only send params that user actually selects/enters
+      const params = new URLSearchParams();
+      params.append('page', '1');
+      params.append('pageSize', '10');
+
+      // Only add propertyFor if a toggle is selected
+      if (selectedType) params.append('propertyFor', selectedType);
+      // Add city if selected
+      const location = locationDropdown.value;
+      if (location) params.append('city', location);
+      // Add address if entered
+      const address = addressInput.value.trim();
+      if (address) params.append('address', address);
+      // Always add these (or remove if you want them optional)
+      params.append('isFeatured', 'false');
+      params.append('readyToMove', 'false');
+
+      const apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?${params.toString()}`;
+
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
@@ -1474,8 +1499,17 @@ document.addEventListener("DOMContentLoaded", function () {
           })
           .join("");
       } else {
-        searchPropertyContainer.innerHTML =
-          '<div class="text-center text-gray-600 py-10">No properties found.</div>';
+        searchResultsSection.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-12">
+            <div class="flex items-center justify-center mb-4">
+              <svg class="w-12 h-12 text-yellow-500 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
+            </div>
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-lg shadow-md max-w-xl text-center">
+              <span class="font-bold text-lg">No properties found</span>
+              <div class="mt-2 text-base">Sorry, we couldn't find any properties matching your search.<br>Try changing your filters or search criteria.</div>
+            </div>
+          </div>
+        `;
       }
     } catch (err) {
       searchPropertyContainer.innerHTML =
