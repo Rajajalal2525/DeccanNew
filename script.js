@@ -1258,7 +1258,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Make searchProperties global so it can be called from anywhere
-  window.searchProperties = async function searchProperties() {
+  // Track current page globally
+  if (!window.propertySearchState) {
+    window.propertySearchState = { currentPage: 1 };
+  }
+
+  window.searchProperties = async function searchProperties(page = 1) {
+    window.propertySearchState.currentPage = page;
 
     loader.classList.remove("hidden");
     searchBtn.disabled = true;
@@ -1500,8 +1506,8 @@ async function updatePropertyResults() {
     }
 
     const params = new URLSearchParams();
-    params.append('page', '1');
-    params.append('pageSize', '12');
+    params.append('page', String(page));
+    params.append('pageSize', '10');
     params.append('sourceWebsite', 'Deccanrealty.com');
     if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
     if (selectedBedrooms.length > 0) params.append('bhkType', selectedBedrooms.join(','));
@@ -1676,7 +1682,7 @@ async function updatePropertyResults() {
       const params = new URLSearchParams();
       params.append('page', '1');
       params.append('pageSize', '12');
-      params.append('sourceWebsite', 'Deccanrealty.com');
+      params.append('sourceWebsite', 'dncrproperty.com');
       // Only add propertyFor if a toggle is selected
       if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
 
@@ -1712,6 +1718,7 @@ async function updatePropertyResults() {
         data.data.properties &&
         data.data.properties.length > 0
       ) {
+        // Render property cards
         searchPropertyContainer.innerHTML = data.data.properties
           .map((property, idx) => {
             let imageUrl = "";
@@ -1797,6 +1804,47 @@ async function updatePropertyResults() {
           `;
           })
           .join("");
+
+        // Render pagination below the cards
+        renderPagination(data.data.pagination);
+
+      // Helper to render pagination controls
+      function renderPagination(pagination) {
+        // Remove old pagination if exists
+        const oldPag = searchPropertyContainer.querySelector('.property-pagination');
+        if (oldPag) oldPag.remove();
+        if (!pagination || pagination.totalPages <= 1) return;
+        const container = document.createElement('div');
+        container.className = 'property-pagination flex justify-center mt-6';
+        let html = '';
+        // Prev button
+        html += `<button class="px-3 py-1 mx-1 rounded border bg-white text-[#008a46] font-semibold ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}">Prev</button>`;
+        // Page numbers (show up to 5 pages)
+        let start = Math.max(1, pagination.currentPage - 2);
+        let end = Math.min(pagination.totalPages, pagination.currentPage + 2);
+        if (pagination.currentPage <= 3) end = Math.min(5, pagination.totalPages);
+        if (pagination.currentPage > pagination.totalPages - 2) start = Math.max(1, pagination.totalPages - 4);
+        for (let i = start; i <= end; i++) {
+          html += `<button class="px-3 py-1 mx-1 rounded border ${i === pagination.currentPage ? 'bg-[#008a46] text-white font-bold' : 'bg-white text-[#008a46] hover:bg-[#008a46] hover:text-white'}" data-page="${i}">${i}</button>`;
+        }
+        // Next button
+        html += `<button class="px-3 py-1 mx-1 rounded border bg-white text-[#008a46] font-semibold ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">Next</button>`;
+        container.innerHTML = html;
+        searchPropertyContainer.appendChild(container);
+        // Add click listeners
+        container.querySelectorAll('button[data-page]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const page = parseInt(this.getAttribute('data-page'));
+            if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
+              window.searchProperties(page);
+              // Scroll to top of property results after page change
+              setTimeout(() => {
+                searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 100);
+            }
+          });
+        });
+      }
       } else {
         searchResultsSection.innerHTML = `
           <div class="flex flex-col items-center justify-center py-12">
@@ -1809,6 +1857,37 @@ async function updatePropertyResults() {
             </div>
           </div>
         `;
+      }
+
+      // Helper to render pagination controls
+      function renderPagination(pagination) {
+        if (!pagination || pagination.totalPages <= 1) return;
+        const container = document.createElement('div');
+        container.className = 'flex justify-center mt-6';
+        let html = '';
+        // Prev button
+        html += `<button class="px-3 py-1 mx-1 rounded border bg-white text-[#008a46] font-semibold ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}">Prev</button>`;
+        // Page numbers (show up to 5 pages)
+        let start = Math.max(1, pagination.currentPage - 2);
+        let end = Math.min(pagination.totalPages, pagination.currentPage + 2);
+        if (pagination.currentPage <= 3) end = Math.min(5, pagination.totalPages);
+        if (pagination.currentPage > pagination.totalPages - 2) start = Math.max(1, pagination.totalPages - 4);
+        for (let i = start; i <= end; i++) {
+          html += `<button class="px-3 py-1 mx-1 rounded border ${i === pagination.currentPage ? 'bg-[#008a46] text-white font-bold' : 'bg-white text-[#008a46] hover:bg-[#008a46] hover:text-white'}" data-page="${i}">${i}</button>`;
+        }
+        // Next button
+        html += `<button class="px-3 py-1 mx-1 rounded border bg-white text-[#008a46] font-semibold ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">Next</button>`;
+        container.innerHTML = html;
+        searchPropertyContainer.appendChild(container);
+        // Add click listeners
+        container.querySelectorAll('button[data-page]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const page = parseInt(this.getAttribute('data-page'));
+            if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
+              window.searchProperties(page);
+            }
+          });
+        });
       }
     } catch (err) {
       searchPropertyContainer.innerHTML =
