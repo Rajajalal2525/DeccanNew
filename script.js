@@ -1679,6 +1679,11 @@ async function updatePropertyResults() {
       params.append('sourceWebsite', 'Deccanrealty.com');
       // Only add propertyFor if a toggle is selected
       if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
+
+      // Add location (city) from dropdown
+      const selectedLocation = locationDropdown.value;
+      if (selectedLocation) params.append('city', selectedLocation);
+
       // Add bedrooms
       if (selectedBedrooms.length > 0) params.append('bhkType', selectedBedrooms.join(','));
       // Add property types
