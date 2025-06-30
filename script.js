@@ -1295,6 +1295,11 @@ document.addEventListener("DOMContentLoaded", function () {
     window.propertySearchState = { currentPage: 1 };
   }
 
+  // --- SORT STATE ---
+  if (!window.propertySortState) {
+    window.propertySortState = { sortBy: "Relevance" };
+  }
+
   window.searchProperties = async function searchProperties(page = 1) {
     window.propertySearchState.currentPage = page;
 
@@ -1304,7 +1309,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // Only render filter UI once
     let filterSection = document.getElementById("filter-section");
     let searchPropertyContainer = document.getElementById("search-property-container");
+    let sortDropdown = document.getElementById("relevance-dropdown");
     if (!filterSection) {
+      // --- SORT DROPDOWN ---
+      const sortDropdownHTML = `
+        <div class="flex justify-end items-center mb-4 w-full">
+          <label for="relevance-dropdown" class="mr-2 font-semibold text-gray-700">Sort by:</label>
+          <select id="relevance-dropdown" class="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#b1923f]" style="cursor:pointer; min-width:150px;">
+            <option value="Relevance">Relevance</option>
+            <option value="Newest">Newest First</option>
+            <option value="pricelowtohigh">Price Low to High</option>
+            <option value="pricehightolow">Price High to Low</option>
+            <option value="arealowtohigh">Area(Inc)</option>
+            <option value="areahightolow">Area(Dec)</option>
+          </select>
+        </div>
+      `;
+
       // Accordion HTML for filters
       const accordionHTML = `
       <aside id="filter-section" class="w-full md:w-64 bg-white rounded-xl shadow-md p-4 mb-6 md:mb-0">
@@ -1399,16 +1420,20 @@ document.addEventListener("DOMContentLoaded", function () {
       </aside>
       `;
 
+
       // Main results grid (right side)
       const resultsGridHTML = `
         <div class="flex-1" id="search-property-container"></div>
       `;
 
-      // Responsive flex layout
+      // Responsive flex layout with sort dropdown above results
       searchResultsSection.innerHTML = `
-        <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex flex-col md:flex-row gap-6 w-full">
           ${accordionHTML}
-          ${resultsGridHTML}
+          <div class="flex-1">
+            ${sortDropdownHTML}
+            ${resultsGridHTML}
+          </div>
         </div>
       `;
 
@@ -1418,6 +1443,7 @@ document.addEventListener("DOMContentLoaded", function () {
       populateFurnishTypeAccordion();
       populateSellerTypeAccordion();
       searchPropertyContainer = document.getElementById("search-property-container");
+      sortDropdown = document.getElementById("relevance-dropdown");
 
       // --- FILTERS: Attach event listeners to all filter checkboxes (ALWAYS after populating accordions) ---
       attachFilterListeners();
@@ -1437,12 +1463,22 @@ document.addEventListener("DOMContentLoaded", function () {
           filterSection.insertBefore(applyBtn, filterSection.firstChild);
         }
       }
+
       applyBtn.onclick = function() {
         // Mimic the search button click: show loader, disable search button, call searchProperties
         if (typeof loader !== 'undefined') loader.classList.remove('hidden');
         if (typeof searchBtn !== 'undefined') searchBtn.disabled = true;
         if (typeof window.searchProperties === 'function') window.searchProperties();
       };
+
+      // --- SORT EVENT LISTENER ---
+      if (sortDropdown) {
+        sortDropdown.value = window.propertySortState.sortBy || "Relevance";
+        sortDropdown.addEventListener("change", function (e) {
+          window.propertySortState.sortBy = sortDropdown.value;
+          window.searchProperties(1); // Always reset to page 1 on sort change
+        });
+      }
 
 // --- GLOBAL FILTER STATE ---
 window.propertyFilterState = {
@@ -1534,6 +1570,16 @@ async function updatePropertyResults() {
         maxAmount = null;
       } else {
         maxAmount = Math.max(...selectedRanges.map(r => r.max));
+      }
+    } else {
+      // If filter UI already rendered, update sort dropdown event listener
+      sortDropdown = document.getElementById("relevance-dropdown");
+      if (sortDropdown) {
+        sortDropdown.value = window.propertySortState.sortBy || "Relevance";
+        sortDropdown.onchange = function (e) {
+          window.propertySortState.sortBy = sortDropdown.value;
+          window.searchProperties(1);
+        };
       }
     }
 
@@ -1717,11 +1763,18 @@ async function updatePropertyResults() {
       if (window.propertySearchState && window.propertySearchState.currentPage) {
         pageNum = window.propertySearchState.currentPage;
       }
+
       params.append('page', String(pageNum));
-      params.append('pageSize', '10');
+      params.append('pageSize', '12');
       params.append('sourceWebsite', 'deccanrealty.com');
       // Only add propertyFor if a toggle is selected
       if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
+
+      // --- SORT PARAM ---
+      let sortBy = window.propertySortState && window.propertySortState.sortBy ? window.propertySortState.sortBy : "Relevance";
+      if (sortBy && sortBy !== "Relevance") {
+        params.append('sortBy', sortBy);
+      }
 
       // Add location (city) from dropdown
       const selectedLocation = locationDropdown.value;
