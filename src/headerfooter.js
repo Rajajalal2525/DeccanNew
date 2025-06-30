@@ -291,7 +291,7 @@ window.openSellerSignupModal = function() {
     // Set Seller-specific content
     var title = document.getElementById('signup-modal-title');
     var desc = document.getElementById('signup-modal-desc');
-    if (title) title.textContent = 'Seller Sign Up';
+    if (title) title.textContent = "Fill Seller's Details.";
     if (desc) desc.innerHTML = '';
     window.sellerSignup = true;
   }
@@ -306,11 +306,11 @@ if (window.signup) {
     var desc = document.getElementById('signup-modal-desc');
     if (window.sellerSignup && roleInput) {
       roleInput.value = 'Seller';
-      if (title) title.textContent = 'Seller Sign Up';
+      if (title) title.textContent = "Fill Seller's Details.";
       if (desc) desc.innerHTML = '';
     } else if (roleInput) {
       roleInput.value = 'Buyer';
-      if (title) title.textContent = 'Buyer Sign Up';
+      if (title) title.textContent = 'Signup as Buyer';
       if (desc) desc.innerHTML = '';
     }
     await originalSignup.apply(this, arguments);
@@ -329,6 +329,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Set default Buyer content for signup modal
   var title = document.getElementById('signup-modal-title');
   var desc = document.getElementById('signup-modal-desc');
-  if (title) title.textContent = 'Buyer Sign Up';
+  if (title) title.textContent = 'Signup as Buyer';
   if (desc) desc.innerHTML = '';
 });

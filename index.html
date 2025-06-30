@@ -279,7 +279,7 @@
         <!-- Buyer Signup modal -->
         <div id="signup-modal" style="display: none; background-color: #fffbe9; border-radius:22px; width:400px; max-width:98vw; min-height:420px; padding:2.5rem 2rem 2.2rem 2rem; box-shadow:0 8px 32px 0 rgba(0,0,0,0.18); margin:0 auto; position:relative;">
           <button id="close-signup-modal" style="position:absolute; top:10px; right:10px; font-size:24px; background:none; border:none; cursor:pointer; color:#b1923f;">&times;</button>
-          <h3 id="signup-modal-title" style="text-align:center; color:#b1923f; font-weight:700; margin-top:18px; margin-bottom:12px; letter-spacing:1px; font-size:1.5rem;">Sign Up to Deccan Realty</h3>
+          <h3 id="signup-modal-title" style="text-align:center; color:#b1923f; font-weight:700; margin-top:18px; margin-bottom:12px; letter-spacing:1px; font-size:1.5rem;">Signup as Buyer</h3>
           <div id="signup-modal-desc" style="text-align:center; color:#333; font-size:1rem; margin-bottom:16px;">
             <!-- Dynamic description will be set by JS -->
           </div>
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var title = document.getElementById('signup-modal-title');
       var desc = document.getElementById('signup-modal-desc');
       if (roleInput) roleInput.value = 'Buyer';
-      if (title) title.textContent = 'Buyer Sign Up';
+      if (title) title.textContent = 'Signup as Buyer';
       if (desc) desc.innerHTML = '';
       window.sellerSignup = false;
     };
