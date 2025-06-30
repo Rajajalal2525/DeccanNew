@@ -275,6 +275,36 @@ function createFooter() {
   footerContainer.appendChild(footer);
 }
 
+// Seller Signup Modal Open Logic
+window.openSellerSignupModal = function() {
+  var userAuthModal = document.getElementById('user-auth-modal');
+  var signupModal = document.getElementById('signup-modal');
+  var loginModal = document.getElementById('login-modal');
+  if (userAuthModal && signupModal) {
+    userAuthModal.style.display = 'flex';
+    signupModal.style.display = 'block';
+    if (loginModal) loginModal.style.display = 'none';
+    var roleInput = document.getElementById('role-signup');
+    if (roleInput) {
+      roleInput.value = 'Seller';
+    }
+    window.sellerSignup = true;
+  }
+};
+
+// Patch signup logic to always use Seller role if window.sellerSignup is true
+if (window.signup) {
+  const originalSignup = window.signup;
+  window.signup = async function(event) {
+    var roleInput = document.getElementById('role-signup');
+    if (window.sellerSignup && roleInput) {
+      roleInput.value = 'Seller';
+    }
+    await originalSignup.apply(this, arguments);
+    window.sellerSignup = false;
+  };
+}
+
 // Load components when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   const headerContainer = document.querySelector("#header-container");

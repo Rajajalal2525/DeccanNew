@@ -1093,7 +1093,7 @@ window.signup = async function (event) {
     location,
     name,
     phone,
-    role: "Buyer",
+    role: document.getElementById("role-signup")?.value || "Buyer",
     acceptTerms: true,
     sourceWebsite: "deccanrealty.com",
   };
