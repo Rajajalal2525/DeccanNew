@@ -1074,8 +1074,9 @@ window.signup = async function (event) {
       const userType = checkData.data.userType.toLowerCase();
       if (userType === "partner" || userType === "admin") {
         if (msgBox) {
-          msgBox.textContent = "Signup is not allowed for Partner or Admin accounts.";
+          msgBox.textContent = "Email already exists. Contact support.";
           msgBox.style.display = "block";
+          msgBox.style.color = "red";
         }
         if (signupSpinner) signupSpinner.style.display = "none";
         signupBtn.disabled = false;
