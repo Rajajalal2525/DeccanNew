@@ -288,17 +288,30 @@ window.openSellerSignupModal = function() {
     if (roleInput) {
       roleInput.value = 'Seller';
     }
+    // Set Seller-specific content
+    var title = document.getElementById('signup-modal-title');
+    var desc = document.getElementById('signup-modal-desc');
+    if (title) title.textContent = 'Seller Sign Up';
+    if (desc) desc.innerHTML = '';
     window.sellerSignup = true;
   }
 };
 
-// Patch signup logic to always use Seller role if window.sellerSignup is true
+// Patch signup logic to always use Seller/Buyer role and update modal content
 if (window.signup) {
   const originalSignup = window.signup;
   window.signup = async function(event) {
     var roleInput = document.getElementById('role-signup');
+    var title = document.getElementById('signup-modal-title');
+    var desc = document.getElementById('signup-modal-desc');
     if (window.sellerSignup && roleInput) {
       roleInput.value = 'Seller';
+      if (title) title.textContent = 'Seller Sign Up';
+      if (desc) desc.innerHTML = '';
+    } else if (roleInput) {
+      roleInput.value = 'Buyer';
+      if (title) title.textContent = 'Buyer Sign Up';
+      if (desc) desc.innerHTML = '';
     }
     await originalSignup.apply(this, arguments);
     window.sellerSignup = false;
@@ -312,4 +325,10 @@ document.addEventListener("DOMContentLoaded", () => {
     createHeader(headerContainer);
   }
   createFooter();
+
+  // Set default Buyer content for signup modal
+  var title = document.getElementById('signup-modal-title');
+  var desc = document.getElementById('signup-modal-desc');
+  if (title) title.textContent = 'Buyer Sign Up';
+  if (desc) desc.innerHTML = '';
 });
