@@ -1255,12 +1255,22 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener('click', function () {
       toggles.forEach(t => t.classList.remove('active'));
       this.classList.add('active');
-      if (idx === 0) selectedType = 'buy';
-      if (idx === 1) selectedType = 'sell';
-      if (idx === 2) selectedType = 'rent';
-      // Auto-search on toggle
-      if (typeof searchProperties === 'function') {
-        searchProperties();
+      if (idx === 0) {
+        selectedType = 'buy';
+        if (typeof searchProperties === 'function') {
+          searchProperties();
+        }
+      } else if (idx === 1) {
+        selectedType = 'sell';
+        // Open signup modal instead of searching properties
+        if (typeof openSignupModal === 'function') {
+          openSignupModal();
+        }
+      } else if (idx === 2) {
+        selectedType = 'rent';
+        if (typeof searchProperties === 'function') {
+          searchProperties();
+        }
       }
     });
   });
