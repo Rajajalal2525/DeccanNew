@@ -453,6 +453,14 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('login-modal').style.display = 'none';
       document.getElementById('signup-modal').style.display = 'block';
       document.getElementById('user-auth-modal').style.display = 'flex';
+      // Always set Buyer content when opening from login/signup link
+      var roleInput = document.getElementById('role-signup');
+      var title = document.getElementById('signup-modal-title');
+      var desc = document.getElementById('signup-modal-desc');
+      if (roleInput) roleInput.value = 'Buyer';
+      if (title) title.textContent = 'Buyer Sign Up';
+      if (desc) desc.innerHTML = '';
+      window.sellerSignup = false;
     };
   }
   // Signup modal close (X button)
