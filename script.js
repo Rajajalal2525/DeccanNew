@@ -1056,6 +1056,37 @@ window.signup = async function (event) {
     validBox.style.display = "none";
   }
 
+  // First, check if email exists and get userType
+  try {
+    const checkRes = await fetch(
+      `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/account/check-email?email=${encodeURIComponent(email)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac",
+        },
+      }
+    );
+    const checkData = await checkRes.json();
+    if (checkData.success && checkData.data && checkData.data.userType) {
+      const userType = checkData.data.userType.toLowerCase();
+      if (userType === "partner" || userType === "admin") {
+        if (msgBox) {
+          msgBox.textContent = "Signup is not allowed for Partner or Admin accounts.";
+          msgBox.style.display = "block";
+        }
+        if (signupSpinner) signupSpinner.style.display = "none";
+        signupBtn.disabled = false;
+        return;
+      }
+    }
+  } catch (err) {
+    // If API fails, allow signup to continue (or show error if you want)
+    // Optionally, you can show a message here
+  }
+
   // Prepare payload
   const payload = {
     email,
