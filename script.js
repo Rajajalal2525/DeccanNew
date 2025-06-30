@@ -1902,17 +1902,20 @@ async function updatePropertyResults() {
         });
       }
       } else {
-        searchResultsSection.innerHTML = `
-          <div class="flex flex-col items-center justify-center py-12">
-            <div class="flex items-center justify-center mb-4">
-              <svg class="w-12 h-12 text-yellow-500 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
+        // Show the message only in the search results section, not the whole property-render-container
+        if (typeof searchResultsSection !== 'undefined' && searchResultsSection) {
+          searchResultsSection.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-12 min-h-[350px] w-full">
+              <div class="flex items-center justify-center mb-4">
+                <svg class="w-12 h-12 text-yellow-500 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
+              </div>
+              <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-lg shadow-md max-w-xl text-center">
+                <span class="font-bold text-lg">No properties found</span>
+                <div class="mt-2 text-base">Sorry, we couldn't find any properties matching your search.<br>Try changing your filters or search criteria.</div>
+              </div>
             </div>
-            <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-lg shadow-md max-w-xl text-center">
-              <span class="font-bold text-lg">No properties found</span>
-              <div class="mt-2 text-base">Sorry, we couldn't find any properties matching your search.<br>Try changing your filters or search criteria.</div>
-            </div>
-          </div>
-        `;
+          `;
+        }
       }
 
       // Helper to render pagination controls

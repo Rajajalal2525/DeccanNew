@@ -538,6 +538,12 @@
   .min-h-\[16px\] {
     min-height: 16px;
   }
+  .min-h-\[180px\] {
+    min-height: 180px;
+  }
+  .min-h-\[350px\] {
+    min-height: 350px;
+  }
   .min-h-\[400px\] {
     min-height: 400px;
   }
