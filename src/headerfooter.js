@@ -12,12 +12,14 @@ function createHeader(container) {
                class="w-32 h-32 rounded-full md:w-36 md:h-36 lg:w-40 lg:h-40 object-contain">
         </a>
       </div>
-      <button class="md:hidden text-2xl text-black mobile-menu-btn z-50">☰</button>
       <ul class="nav-menu hidden md:flex items-center space-x-4 font-bold">
         <li><a href="index.html" aria-label="Home" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-black lg:font-bold">HOME</a></li>
         <li><a href="about.html" aria-label="About" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">ABOUT</a></li>
         <li><a href="contact.html" aria-label="Contact" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">CONTACT</a></li>
         <li><a href="faq.html" aria-label="FAQ" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">FAQ</a></li>
+        <li>
+          <button id="login-btn" onclick="openLoginModal()" class="text-black bg-transparent border-none font-bold py-2 px-5 rounded-full shadow-none transition-all duration-200 focus:outline-none ml-2">Login</button>
+        </li>
         <li class="group border border-[green] px-4 py-2 rounded-md transition hover:bg-[#008a46]">
           <a href="homeloan.html" 
              aria-label="HomeLoan" 
@@ -26,14 +28,15 @@ function createHeader(container) {
           </a>
         </li>
         <li>
-          <a href="#" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">Login</a>
+          <button id="list-property-btn" onclick="openSellerSignupModal()" class="bg-[#008a46] hover:bg-[#b1923f] text-white font-bold py-2 px-5 rounded-full shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#008a46] ml-2">List Property Free</button>
         </li>
       </ul>
+      <div class="md:hidden flex items-center gap-3">
+        <button class="text-2xl text-black mobile-menu-btn z-50">☰</button>
+      </div>
     </div>
-    
     <!-- Side drawer overlay -->
     <div class="overlay fixed inset-0  bg-opacity-50 z-40 hidden"></div>
-    
     <!-- Side drawer menu -->
     <div class="side-drawer fixed top-0 right-0 h-full w-64 bg-[#237f51] z-50 transform translate-x-full transition-transform duration-300 ease-in-out shadow-lg">
       <div class="flex justify-end p-4">
@@ -51,7 +54,10 @@ function createHeader(container) {
           </a>
         </li>
         <li class="w-full mt-2">
-          <a href="#" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black text-center">Login</a>
+          <a href="#" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black text-center" onclick="openLoginModal()">Login</a>
+        </li>
+        <li class="w-full mt-2">
+          <a href="#" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black text-center" onclick="openSellerSignupModal()">List Property Free</a>
         </li>
       </ul>
     </div>
