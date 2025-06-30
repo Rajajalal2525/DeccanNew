@@ -18,7 +18,7 @@ function createHeader(container) {
         <li><a href="contact.html" aria-label="Contact" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">CONTACT</a></li>
         <li><a href="faq.html" aria-label="FAQ" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">FAQ</a></li>
         <li>
-          <button id="login-btn" onclick="openLoginModal()" class="text-black bg-transparent border-none font-bold py-2 px-5 rounded-full shadow-none transition-all duration-200 focus:outline-none ml-2">Login</button>
+          <button id="login-btn" onclick="openLoginModal()" class="text-black bg-transparent border-none font-bold text-lg px-3 py-1 rounded-full shadow-none transition-all duration-200 focus:outline-none ml-2">LOGIN</button>
         </li>
         <li class="group border border-[green] px-4 py-2 rounded-md transition hover:bg-[#008a46]">
           <a href="homeloan.html" 
