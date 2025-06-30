@@ -27,8 +27,10 @@ function createHeader(container) {
               HOME LOAN
           </a>
         </li>
-        <li>
-          <button id="list-property-btn" onclick="openSellerSignupModal()" class="bg-[#008a46] hover:bg-[#b1923f] text-white font-bold py-2 px-5 rounded-full shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#008a46] ml-2">List Property Free</button>
+        <li class="group border border-[green] px-4 py-2 rounded-md transition hover:bg-[#008a46]">
+          <button id="list-property-btn" onclick="openSellerSignupModal()" class="text-black font-bold text-lg rounded-md px-0 py-0 w-full h-full flex items-center justify-center transition focus:outline-none">
+            <span class="mr-1">List Property</span> <span class="text-white font-bold ml-1 px-2 rounded-md bg-green-600">Free</span>
+          </button>
         </li>
       </ul>
       <div class="md:hidden flex items-center gap-3">
