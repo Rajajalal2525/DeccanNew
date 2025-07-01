@@ -1850,16 +1850,26 @@ document.addEventListener("DOMContentLoaded", function () {
       // If address search, filter strictly for address; if city search, filter strictly for city
       const isCity = cityOptions.some(city => city.toLowerCase() === (addressInputValue || '').toLowerCase());
       if (addressInputValue && isCity) {
-        // City search: show only properties where city matches exactly
+        // City search: show only properties where city matches exactly (fuzzy for Bangalore/Bengaluru)
         filteredProperties = filteredProperties.filter(property => {
-          return (property.city || '').trim().toLowerCase() === addressInputValue.trim().toLowerCase();
+          const cityVal = (property.city || '').trim().toLowerCase();
+          const inputVal = addressInputValue.trim().toLowerCase();
+          // Fuzzy match for Bangalore/Bengaluru
+          if ((cityVal === 'bengaluru' && inputVal === 'bangalore') || (cityVal === 'bangalore' && inputVal === 'bengaluru')) {
+            return true;
+          }
+          return cityVal === inputVal;
         });
       } else if (addressInputValue && !isCity) {
-        // Address search: all address parts must be present in property address (case-insensitive, strict)
+        // Address search: all address parts must be present in property address (case-insensitive, fuzzy for Bangalore/Bengaluru)
         const addressParts = addressInputValue.split(',').map(part => part.trim().toLowerCase()).filter(Boolean);
         filteredProperties = filteredProperties.filter(property => {
-          const propAddr = (property.locationAddress || property.address || '').trim().toLowerCase();
-          return addressParts.every(part => propAddr.includes(part));
+          let propAddr = (property.locationAddress || property.address || '').trim().toLowerCase();
+          // Fuzzy replace Bangalore/Bengaluru in both input and property address
+          const fuzzyReplace = str => str.replace(/\bbangalore\b/g, 'bengaluru').replace(/\bbengaluru\b/g, 'bengaluru');
+          propAddr = fuzzyReplace(propAddr);
+          const fuzzyParts = addressParts.map(part => fuzzyReplace(part));
+          return fuzzyParts.every(part => propAddr.includes(part));
         });
       }
       if (
