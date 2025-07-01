@@ -1915,60 +1915,111 @@ document.addEventListener("DOMContentLoaded", function () {
           })
           .join("");
 
-        // Render pagination above the cards
-        renderPagination(data.data.pagination, true);
-        // Render property cards
-        // ...existing code...
-        // Render pagination below the cards
-        renderPagination(data.data.pagination, false);
+        // Render pagination controls
+        renderTopPagination(data.data.pagination);
+        renderBottomPagination(data.data.pagination);
 
-        // Helper to render pagination controls
-        function renderPagination(pagination, isTop) {
+        // Helper to render top pagination (summary + next/prev only)
+        function renderTopPagination(pagination) {
           if (!pagination || pagination.totalPages <= 1) return;
-          // Remove old paginations (top or bottom)
-          const selector = isTop ? '.property-pagination-top' : '.property-pagination-bottom';
-          const oldPag = searchPropertyContainer.querySelector(selector);
-          if (oldPag) oldPag.remove();
+          // Remove old top pagination
+          const oldTopPag = searchPropertyContainer.querySelector('.property-pagination-top');
+          if (oldTopPag) oldTopPag.remove();
           const container = document.createElement('div');
-          container.className = (isTop ? 'property-pagination-top' : 'property-pagination-bottom') + ' flex justify-center mt-6';
-          let html = '';
-          // Prev button
-          html += `<button class="px-3 py-1 mx-1 rounded-full border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}"><i class='fas fa-chevron-left mr-1'></i> Prev</button>`;
-          // Page numbers (show up to 5 pages)
-          let start = Math.max(1, pagination.currentPage - 2);
-          let end = Math.min(pagination.totalPages, pagination.currentPage + 2);
-          if (pagination.currentPage <= 3) end = Math.min(5, pagination.totalPages);
-          if (pagination.currentPage > pagination.totalPages - 2) start = Math.max(1, pagination.totalPages - 4);
-          for (let i = start; i <= end; i++) {
-            html += `<button class="px-3 py-1 mx-1 rounded-full border-2 ${i === pagination.currentPage ? 'bg-[#008a46] text-white font-bold border-[#b1923f] shadow-lg scale-110' : 'bg-white text-[#008a46] border-[#008a46] hover:bg-[#008a46] hover:text-white hover:shadow-lg'} transition-all duration-200" data-page="${i}">${i}</button>`;
-          }
-          // Next button
-          html += `<button class="px-3 py-1 mx-1 rounded-full border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">Next <i class='fas fa-chevron-right ml-1'></i></button>`;
-          container.innerHTML = html;
-          if (isTop) {
-            searchPropertyContainer.prepend(container);
-          } else {
-            searchPropertyContainer.appendChild(container);
-          }
+          container.className = 'property-pagination-top flex justify-between items-center mb-6 p-4 bg-gray-50 rounded-lg border';
+          // Use correct property names from API
+          const currentStart = ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1;
+          const currentEnd = Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems);
+          container.innerHTML = `
+            <div class="text-sm text-gray-600 font-medium">
+              Showing ${currentStart}-${currentEnd} of ${pagination.totalItems} properties
+            </div>
+            <div class="flex gap-2">
+              <button class="px-4 py-2 rounded-lg border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}">
+                <i class='fas fa-chevron-left mr-1'></i> Prev
+              </button>
+              <button class="px-4 py-2 rounded-lg border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">
+                Next <i class='fas fa-chevron-right ml-1'></i>
+              </button>
+            </div>
+          `;
+          searchPropertyContainer.prepend(container);
           // Add click listeners
           container.querySelectorAll('button[data-page]').forEach(btn => {
             btn.addEventListener('click', function () {
               const page = parseInt(this.getAttribute('data-page'));
               if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
-                // Always use the main searchProperties function for pagination
                 if (!window.propertySearchState) window.propertySearchState = {};
                 window.propertySearchState.currentPage = page;
-                if (typeof window.searchProperties === 'function') {
-                  window.searchProperties(page);
-                } else {
-                  updatePropertyResults();
-                }
+                window.searchProperties(page);
                 setTimeout(() => {
-                  if (isTop) {
-                    searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  } else {
-                    searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                  }
+                  searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+              }
+            });
+          });
+        }
+
+        // Helper to render bottom pagination (full pagination controls)
+        function renderBottomPagination(pagination) {
+          if (!pagination || pagination.totalPages <= 1) return;
+          // Remove old bottom pagination
+          const oldBottomPag = searchPropertyContainer.querySelector('.property-pagination-bottom');
+          if (oldBottomPag) oldBottomPag.remove();
+          const container = document.createElement('div');
+          container.className = 'property-pagination-bottom flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 p-4';
+          let html = '<div class="flex flex-wrap justify-center items-center gap-2">';
+          // Prev button
+          html += `<button class="px-3 py-2 rounded-lg border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}">
+            <i class='fas fa-chevron-left mr-1'></i> Prev
+          </button>`;
+          // Page numbers (show up to 5 pages around current)
+          let start = Math.max(1, pagination.currentPage - 2);
+          let end = Math.min(pagination.totalPages, pagination.currentPage + 2);
+          // Adjust range to always show 5 pages if possible
+          if (pagination.currentPage <= 3) {
+            end = Math.min(5, pagination.totalPages);
+          }
+          if (pagination.currentPage > pagination.totalPages - 2) {
+            start = Math.max(1, pagination.totalPages - 4);
+          }
+          // Show first page and ellipsis if needed
+          if (start > 1) {
+            html += `<button class="px-3 py-2 rounded-lg border-2 bg-white text-[#008a46] border-[#008a46] hover:bg-[#008a46] hover:text-white hover:shadow-lg transition-all duration-200" data-page="1">1</button>`;
+            if (start > 2) {
+              html += `<span class="px-2 text-gray-500">...</span>`;
+            }
+          }
+          // Page numbers
+          for (let i = start; i <= end; i++) {
+            html += `<button class="px-3 py-2 rounded-lg border-2 ${i === pagination.currentPage ? 'bg-[#008a46] text-white font-bold border-[#b1923f] shadow-lg scale-105' : 'bg-white text-[#008a46] border-[#008a46] hover:bg-[#008a46] hover:text-white hover:shadow-lg'} transition-all duration-200" data-page="${i}">${i}</button>`;
+          }
+          // Show last page and ellipsis if needed
+          if (end < pagination.totalPages) {
+            if (end < pagination.totalPages - 1) {
+              html += `<span class="px-2 text-gray-500">...</span>`;
+            }
+            html += `<button class="px-3 py-2 rounded-lg border-2 bg-white text-[#008a46] border-[#008a46] hover:bg-[#008a46] hover:text-white hover:shadow-lg transition-all duration-200" data-page="${pagination.totalPages}">${pagination.totalPages}</button>`;
+          }
+          // Page info
+          html += `<span class="px-4 py-2 text-sm text-gray-600 font-medium">of ${pagination.totalPages}</span>`;
+          // Next button
+          html += `<button class="px-3 py-2 rounded-lg border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">
+            Next <i class='fas fa-chevron-right ml-1'></i>
+          </button>`;
+          html += '</div>';
+          container.innerHTML = html;
+          searchPropertyContainer.appendChild(container);
+          // Add click listeners
+          container.querySelectorAll('button[data-page]').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const page = parseInt(this.getAttribute('data-page'));
+              if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
+                if (!window.propertySearchState) window.propertySearchState = {};
+                window.propertySearchState.currentPage = page;
+                window.searchProperties(page);
+                setTimeout(() => {
+                  searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
               }
             });
@@ -1991,36 +2042,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      // Helper to render pagination controls
-      function renderPagination(pagination) {
-        if (!pagination || pagination.totalPages <= 1) return;
-        const container = document.createElement('div');
-        container.className = 'flex justify-center mt-6';
-        let html = '';
-        // Prev button
-        html += `<button class="px-3 py-1 mx-1 rounded border bg-white text-[#008a46] font-semibold ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}">Prev</button>`;
-        // Page numbers (show up to 5 pages)
-        let start = Math.max(1, pagination.currentPage - 2);
-        let end = Math.min(pagination.totalPages, pagination.currentPage + 2);
-        if (pagination.currentPage <= 3) end = Math.min(5, pagination.totalPages);
-        if (pagination.currentPage > pagination.totalPages - 2) start = Math.max(1, pagination.totalPages - 4);
-        for (let i = start; i <= end; i++) {
-          html += `<button class="px-3 py-1 mx-1 rounded border ${i === pagination.currentPage ? 'bg-[#008a46] text-white font-bold' : 'bg-white text-[#008a46] hover:bg-[#008a46] hover:text-white'}" data-page="${i}">${i}</button>`;
-        }
-        // Next button
-        html += `<button class="px-3 py-1 mx-1 rounded border bg-white text-[#008a46] font-semibold ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">Next</button>`;
-        container.innerHTML = html;
-        searchPropertyContainer.appendChild(container);
-        // Add click listeners
-        container.querySelectorAll('button[data-page]').forEach(btn => {
-          btn.addEventListener('click', function () {
-            const page = parseInt(this.getAttribute('data-page'));
-            if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
-              window.searchProperties(page);
-            }
-          });
-        });
-      }
+
     } catch (err) {
       searchPropertyContainer.innerHTML =
         '<div class="text-center text-red-600 py-10">Failed to fetch properties. Please try again later.</div>';
@@ -2035,6 +2057,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- Address Suggestions Logic (Google Places API) ---
+  const suggestionBox = document.getElementById("address-suggestions");
   let suggestionTimeout;
   addressInput.addEventListener("input", function () {
     clearTimeout(suggestionTimeout);
