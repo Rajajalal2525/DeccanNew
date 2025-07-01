@@ -250,8 +250,7 @@ async function fetchExpertiseData() {
       const errorData = await response.json().catch(() => ({}));
       console.error("API Error:", errorData);
       throw new Error(
-        `HTTP error! Status: ${response.status}, Message: ${
-          errorData.message || "Unknown error"
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"
         }`
       );
     }
@@ -260,10 +259,10 @@ async function fetchExpertiseData() {
 
     if (data.success && data.data && data.data.properties) {
       // Scroll to the property-render-container on successful search
-      const scrollTarget = document.getElementById("property-render-container");
-      if (scrollTarget) {
-        scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      // const scrollTarget = document.getElementById("property-render-container");
+      // if (scrollTarget) {
+      //   scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+      // }
       return data.data.properties;
     } else {
       console.error("API response format is not as expected:", data);
@@ -302,8 +301,7 @@ async function fetchTrendingProperties() {
       const errorData = await response.json().catch(() => ({}));
       console.error("API Error:", errorData);
       throw new Error(
-        `HTTP error! Status: ${response.status}, Message: ${
-          errorData.message || "Unknown error"
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"
         }`
       );
     }
@@ -349,8 +347,7 @@ async function fetchReadyToMoveProperties() {
       const errorData = await response.json().catch(() => ({}));
       console.error("API Error:", errorData);
       throw new Error(
-        `HTTP error! Status: ${response.status}, Message: ${
-          errorData.message || "Unknown error"
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"
         }`
       );
     }
@@ -389,8 +386,7 @@ async function fetchRentalProperties() {
       const errorData = await response.json().catch(() => ({}));
       console.error("API Error:", errorData);
       throw new Error(
-        `HTTP error! Status: ${response.status}, Message: ${
-          errorData.message || "Unknown error"
+        `HTTP error! Status: ${response.status}, Message: ${errorData.message || "Unknown error"
         }`
       );
     }
@@ -436,29 +432,25 @@ function createExpertiseCardFromAPI(property) {
         <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow ">
             <div class="space-y-3 flex-grow">
                 <div class="text-center">
-                   <h2 class="text-center text-lg sm:text-xl xl:text-lg 2xl:text-lg font-bold text-black whitespace-normal">${
-                     property.propertyName
-                   }</h2>
+                   <h2 class="text-center text-lg sm:text-xl xl:text-lg 2xl:text-lg font-bold text-black whitespace-normal">${property.propertyName
+    }</h2>
                    <p class="text-sm lg:text-black lg:font-semibold flex items-center justify-center mt-2">
-                     <i class="fas fa-map-marker-alt mr-2"></i>${
-                       property.city
-                     }, ${property.locationAddress}
+                     <i class="fas fa-map-marker-alt mr-2"></i>${property.city
+    }, ${property.locationAddress}
                    </p>
                 </div>
                 
                 <div class="text-sm space-y-2">
-                    <p class="text-black text-center">${
-                      property.shortDescription ||
-                      "Premium property available for viewing"
-                    }</p>
+                    <p class="text-black text-center">${property.shortDescription ||
+    "Premium property available for viewing"
+    }</p>
                 </div>
             </div>
 
             <!-- Buttons Section -->
             <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
-                <button onclick="openEnquiryForm({ propertyName: '${
-                  property.propertyName
-                }' })"
+                <button onclick="openEnquiryForm({ propertyName: '${property.propertyName
+    }' })"
                  class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">
                     Explore More
                 </button>
@@ -581,13 +573,11 @@ function createTrendingPropertyCardFromAPI(property) {
         <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
             <div class="space-y-3 flex-grow">
                 <div>
-                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${
-                      property.propertyName
-                    }</h2>
+                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.propertyName
+    }</h2>
                     <p class="text-sm lg:text-black lg:text-semibold flex items-center">
-                        <i class="fas fa-map-marker-alt mr-2"></i>${
-                          property.locationAddress || property.city
-                        }
+                        <i class="fas fa-map-marker-alt mr-2"></i>${property.locationAddress || property.city
+    }
                     </p>
                     <span class="text-base sm:text-lg lg:text-[16px] font-semibold lg:text-black block">
                         ${formattedPrice}
@@ -605,20 +595,18 @@ function createTrendingPropertyCardFromAPI(property) {
                     </p>
                     <p class="flex items-center lg:text-black">
                         <i class="fas fa-calendar-alt text-green-500 mr-2"></i>
-                        ${
-                          property.readyToMove
-                            ? "Ready to Move"
-                            : "Under Construction"
-                        }
+                        ${property.readyToMove
+      ? "Ready to Move"
+      : "Under Construction"
+    }
                     </p>
                 </div>
             </div>
 
             <!-- Buttons Section -->
             <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
-                <button onclick="openEnquiryForm({ propertyName: '${
-                  property.propertyName
-                }' })"
+                <button onclick="openEnquiryForm({ propertyName: '${property.propertyName
+    }' })"
                 class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">
                     Request Info
                 </button>
@@ -685,21 +673,18 @@ function createResalePropertyCard(property, index) {
         <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
             <div class="space-y-3 flex-grow">
                 <div class="text-center">
-                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${
-                      property.name
-                    }</h2>
+                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.name
+    }</h2>
                 </div>
                 
                 <div class="text-sm space-y-2 resale-content-wrapper">
-                    <div class="description-container text-black text-center" id="desc-${
-                      index + 1
-                    }">
+                    <div class="description-container text-black text-center" id="desc-${index + 1
+    }">
                         <p class="desc-content">${property.description}</p>
                     </div>
                     <div class="text-center mt-2">
-                        <span class="toggle-btn text-blue-600 cursor-pointer text-sm inline-block" data-target="desc-${
-                          index + 1
-                        }">See More...</span>
+                        <span class="toggle-btn text-blue-600 cursor-pointer text-sm inline-block" data-target="desc-${index + 1
+    }">See More...</span>
                     </div>
                 </div>
             </div>
@@ -707,9 +692,8 @@ function createResalePropertyCard(property, index) {
             <!-- Buttons Section -->
             <div 
             class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
-                <button onclick="openEnquiryForm({ propertyName: '${
-                  property.name
-                }' })"
+                <button onclick="openEnquiryForm({ propertyName: '${property.name
+    }' })"
                  class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">
                     Unlock Pricing
                 </button>
@@ -756,30 +740,26 @@ function createResalePropertyCardFromAPI(property, index) {
         <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
             <div class="space-y-3 flex-grow">
                 <div class="text-center">
-                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${
-                      property.propertyName
-                    }</h2>
+                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.propertyName
+    }</h2>
                 </div>
                 
                 <div class="text-sm space-y-2 resale-content-wrapper">
-                    <div class="description-container text-black text-center" id="api-desc-${
-                      index + 1
-                    }">
+                    <div class="description-container text-black text-center" id="api-desc-${index + 1
+    }">
                         <p class="desc-content">${description}</p>
                     </div>
                     <div class="text-center mt-2">
-                        <span class="toggle-btn text-blue-600 cursor-pointer text-sm inline-block" data-target="api-desc-${
-                          index + 1
-                        }">See More...</span>
+                        <span class="toggle-btn text-blue-600 cursor-pointer text-sm inline-block" data-target="api-desc-${index + 1
+    }">See More...</span>
                     </div>
                 </div>
             </div>
 
             <!-- Buttons Section -->
             <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
-                <button onclick="openEnquiryForm({ propertyName: '${
-                  property.propertyName
-                }' })"
+                <button onclick="openEnquiryForm({ propertyName: '${property.propertyName
+    }' })"
                  class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">
                     Unlock Pricing
                 </button>
@@ -807,30 +787,26 @@ function createRentalPropertyCard(property, index) {
         <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
             <div class="space-y-3 flex-grow">
                 <div class="text-center">
-                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${
-                      property.name
-                    }</h2>
+                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.name
+    }</h2>
                 </div>
                 
                 <div class="text-sm space-y-2 rental-content-wrapper">
-                    <div class="description-container text-black text-center" id="rental-desc-${
-                      index + 1
-                    }">
+                    <div class="description-container text-black text-center" id="rental-desc-${index + 1
+    }">
                         <p class="desc-content">${property.description}</p>
                     </div>
                     <div class="text-center mt-2">
-                        <span class="toggle-btn text-blue-600 cursor-pointer text-sm inline-block" data-target="rental-desc-${
-                          index + 1
-                        }">See More...</span>
+                        <span class="toggle-btn text-blue-600 cursor-pointer text-sm inline-block" data-target="rental-desc-${index + 1
+    }">See More...</span>
                     </div>
                 </div>
             </div>
 
             <!-- Buttons Section -->
             <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
-                <button onclick="openEnquiryForm({ propertyName: '${
-                  property.name
-                }' })"
+                <button onclick="openEnquiryForm({ propertyName: '${property.name
+    }' })"
                  class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">
                     Schedule Visit
                 </button>
@@ -1318,6 +1294,11 @@ document.addEventListener("DOMContentLoaded", function () {
   window.searchProperties = async function searchProperties(page = 1) {
     window.propertySearchState.currentPage = page;
 
+    const scrollTarget = document.getElementById("property-render-container");
+    if (scrollTarget) {
+      scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
     loader.classList.remove("hidden");
     searchBtn.disabled = true;
 
@@ -1479,7 +1460,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      applyBtn.onclick = function() {
+      applyBtn.onclick = function () {
         // Mimic the search button click: show loader, disable search button, call searchProperties
         if (typeof loader !== 'undefined') loader.classList.remove('hidden');
         if (typeof searchBtn !== 'undefined') searchBtn.disabled = true;
@@ -1495,182 +1476,179 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-// --- GLOBAL FILTER STATE ---
-window.propertyFilterState = {
-  bedrooms: [],
-  propertyTypes: [],
-  furnishTypes: [],
-  sellerTypes: [],
-  amountRanges: [] // array of {min, max}
-};
-// Attach filter listeners for live filtering
-function attachFilterListeners() {
-  // Bedrooms
-  document.querySelectorAll('.bedroom-checkboxes input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', function() {
-      const val = cb.value;
-      if (cb.checked) {
-        if (!window.propertyFilterState.bedrooms.includes(val)) window.propertyFilterState.bedrooms.push(val);
-      } else {
-        window.propertyFilterState.bedrooms = window.propertyFilterState.bedrooms.filter(v => v !== val);
-      }
-    });
-  });
-  // Property Types
-  document.querySelectorAll('.property-type-checkboxes input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', function() {
-      const val = cb.value;
-      if (cb.checked) {
-        if (!window.propertyFilterState.propertyTypes.includes(val)) window.propertyFilterState.propertyTypes.push(val);
-      } else {
-        window.propertyFilterState.propertyTypes = window.propertyFilterState.propertyTypes.filter(v => v !== val);
-      }
-    });
-  });
-  // Furnish Types
-  document.querySelectorAll('.furnish-type-checkboxes input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', function() {
-      const val = cb.value;
-      if (cb.checked) {
-        if (!window.propertyFilterState.furnishTypes.includes(val)) window.propertyFilterState.furnishTypes.push(val);
-      } else {
-        window.propertyFilterState.furnishTypes = window.propertyFilterState.furnishTypes.filter(v => v !== val);
-      }
-    });
-  });
-  // Seller Types
-  document.querySelectorAll('.seller-type-checkboxes input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', function() {
-      const val = cb.value;
-      if (cb.checked) {
-        if (!window.propertyFilterState.sellerTypes.includes(val)) window.propertyFilterState.sellerTypes.push(val);
-      } else {
-        window.propertyFilterState.sellerTypes = window.propertyFilterState.sellerTypes.filter(v => v !== val);
-      }
-    });
-  });
-  // Amount
-  document.querySelectorAll('.p-3 input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', function() {
-      // Rebuild amountRanges array
-      const all = Array.from(document.querySelectorAll('.p-3 input[type="checkbox"]'));
-      window.propertyFilterState.amountRanges = all.filter(c => c.checked).map(c => {
-        const label = c.parentElement.textContent.trim();
-        if (label.includes('Below')) return {min:0,max:5000000};
-        if (label.includes('₹50L - ₹1Cr')) return {min:5000000,max:10000000};
-        if (label.includes('₹1Cr - ₹2Cr')) return {min:10000000,max:20000000};
-        if (label.includes('Above')) return {min:20000000,max:null};
-        return null;
-      }).filter(Boolean);
-    });
-  });
-}
-
-// Only update property results, do not re-render filter UI
-async function updatePropertyResults() {
-  const searchPropertyContainer = document.getElementById("search-property-container");
-  if (!searchPropertyContainer) return;
-  searchPropertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
-  try {
-    // Use global filter state
-    const selectedBedrooms = window.propertyFilterState.bedrooms;
-    const selectedPropertyTypes = window.propertyFilterState.propertyTypes;
-    const selectedFurnishTypes = window.propertyFilterState.furnishTypes;
-    const selectedSellerTypes = window.propertyFilterState.sellerTypes;
-    let minAmount = null, maxAmount = null;
-    const selectedRanges = window.propertyFilterState.amountRanges;
-    if (selectedRanges.length > 0) {
-      minAmount = Math.min(...selectedRanges.map(r => r.min));
-      if (selectedRanges.some(r => r.max === null)) {
-        maxAmount = null;
-      } else {
-        maxAmount = Math.max(...selectedRanges.map(r => r.max));
-      }
-    } else {
-      // If filter UI already rendered, update sort dropdown event listener
-      sortDropdown = document.getElementById("relevance-dropdown");
-      if (sortDropdown) {
-        sortDropdown.value = window.propertySortState.sortBy || "Relevance";
-        sortDropdown.onchange = function (e) {
-          window.propertySortState.sortBy = sortDropdown.value;
-          window.searchProperties(1);
-        };
-      }
-    }
-
-    const params = new URLSearchParams();
-    params.append('page', String(page));
-    params.append('pageSize', '10');
-    params.append('sourceWebsite', 'Deccanrealty.com');
-    if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
-    if (selectedBedrooms.length > 0) params.append('bhkType', selectedBedrooms.join(','));
-    if (selectedPropertyTypes.length > 0) params.append('propertyTypes', selectedPropertyTypes.join(','));
-    if (selectedFurnishTypes.length > 0) params.append('furnishing', selectedFurnishTypes.join(','));
-    if (selectedSellerTypes.length > 0) params.append('listedBy', selectedSellerTypes.join(','));
-    if (minAmount !== null) params.append('minAmount', minAmount);
-    if (maxAmount !== null) params.append('maxAmount', maxAmount);
-
-    const apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?${params.toString()}`;
-
-    const response = await fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac"
-      },
-    });
-    const data = await response.json();
-    if (
-      data.success &&
-      data.data &&
-      data.data.properties &&
-      data.data.properties.length > 0
-    ) {
-      searchPropertyContainer.innerHTML = data.data.properties
-        .map((property, idx) => {
-          let imageUrl = "";
-          let images = [];
-          try {
-            const imageData = JSON.parse(property.imageURL);
-            if (Array.isArray(imageData) && imageData.length > 0) {
-              imageUrl = imageData[0].imageUrl;
-              images = imageData.map((img) => img.imageUrl).filter(Boolean);
+      // --- GLOBAL FILTER STATE ---
+      window.propertyFilterState = {
+        bedrooms: [],
+        propertyTypes: [],
+        furnishTypes: [],
+        sellerTypes: [],
+        amountRanges: [] // array of {min, max}
+      };
+      // Attach filter listeners for live filtering
+      function attachFilterListeners() {
+        // Bedrooms
+        document.querySelectorAll('.bedroom-checkboxes input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', function () {
+            const val = cb.value;
+            if (cb.checked) {
+              if (!window.propertyFilterState.bedrooms.includes(val)) window.propertyFilterState.bedrooms.push(val);
+            } else {
+              window.propertyFilterState.bedrooms = window.propertyFilterState.bedrooms.filter(v => v !== val);
             }
-          } catch (e) {
-            imageUrl =
-              "https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/images/propertycardimages/Trending/nf5fbl8k6d28y6wfnx0r";
-            images = [imageUrl];
+          });
+        });
+        // Property Types
+        document.querySelectorAll('.property-type-checkboxes input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', function () {
+            const val = cb.value;
+            if (cb.checked) {
+              if (!window.propertyFilterState.propertyTypes.includes(val)) window.propertyFilterState.propertyTypes.push(val);
+            } else {
+              window.propertyFilterState.propertyTypes = window.propertyFilterState.propertyTypes.filter(v => v !== val);
+            }
+          });
+        });
+        // Furnish Types
+        document.querySelectorAll('.furnish-type-checkboxes input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', function () {
+            const val = cb.value;
+            if (cb.checked) {
+              if (!window.propertyFilterState.furnishTypes.includes(val)) window.propertyFilterState.furnishTypes.push(val);
+            } else {
+              window.propertyFilterState.furnishTypes = window.propertyFilterState.furnishTypes.filter(v => v !== val);
+            }
+          });
+        });
+        // Seller Types
+        document.querySelectorAll('.seller-type-checkboxes input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', function () {
+            const val = cb.value;
+            if (cb.checked) {
+              if (!window.propertyFilterState.sellerTypes.includes(val)) window.propertyFilterState.sellerTypes.push(val);
+            } else {
+              window.propertyFilterState.sellerTypes = window.propertyFilterState.sellerTypes.filter(v => v !== val);
+            }
+          });
+        });
+        // Amount
+        document.querySelectorAll('.p-3 input[type="checkbox"]').forEach(cb => {
+          cb.addEventListener('change', function () {
+            // Rebuild amountRanges array
+            const all = Array.from(document.querySelectorAll('.p-3 input[type="checkbox"]'));
+            window.propertyFilterState.amountRanges = all.filter(c => c.checked).map(c => {
+              const label = c.parentElement.textContent.trim();
+              if (label.includes('Below')) return { min: 0, max: 5000000 };
+              if (label.includes('₹50L - ₹1Cr')) return { min: 5000000, max: 10000000 };
+              if (label.includes('₹1Cr - ₹2Cr')) return { min: 10000000, max: 20000000 };
+              if (label.includes('Above')) return { min: 20000000, max: null };
+              return null;
+            }).filter(Boolean);
+          });
+        });
+      }
+
+      // Only update property results, do not re-render filter UI
+      async function updatePropertyResults() {
+        const searchPropertyContainer = document.getElementById("search-property-container");
+        if (!searchPropertyContainer) return;
+        searchPropertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
+        try {
+          // Use global filter state
+          const selectedBedrooms = window.propertyFilterState.bedrooms;
+          const selectedPropertyTypes = window.propertyFilterState.propertyTypes;
+          const selectedFurnishTypes = window.propertyFilterState.furnishTypes;
+          const selectedSellerTypes = window.propertyFilterState.sellerTypes;
+          let minAmount = null, maxAmount = null;
+          const selectedRanges = window.propertyFilterState.amountRanges;
+          if (selectedRanges.length > 0) {
+            minAmount = Math.min(...selectedRanges.map(r => r.min));
+            if (selectedRanges.some(r => r.max === null)) {
+              maxAmount = null;
+            } else {
+              maxAmount = Math.max(...selectedRanges.map(r => r.max));
+            }
+          } else {
+            // If filter UI already rendered, update sort dropdown event listener
+            sortDropdown = document.getElementById("relevance-dropdown");
+            if (sortDropdown) {
+              sortDropdown.value = window.propertySortState.sortBy || "Relevance";
+              sortDropdown.onchange = function (e) {
+                window.propertySortState.sortBy = sortDropdown.value;
+                window.searchProperties(1);
+              };
+            }
           }
-          const formattedPrice = property.price
-            ? `₹ ${(property.price / 10000000).toFixed(2)} Cr`
-            : "Price on Request";
-          const shortDescription =
-            property.shortDescription ||
-            property.longDescription ||
-            "Premium property available for viewing";
-          const cleanDescription = shortDescription
-            .replace(/<[^>]*>/g, "")
-            .replace(/&nbsp;/g, " ")
-            .replace(/&#160;/g, " ")
-            .trim();
-          return `
+
+          const params = new URLSearchParams();
+          params.append('page', String(page));
+          params.append('pageSize', '10');
+          params.append('sourceWebsite', 'Deccanrealty.com');
+          if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
+          if (selectedBedrooms.length > 0) params.append('bhkType', selectedBedrooms.join(','));
+          if (selectedPropertyTypes.length > 0) params.append('propertyTypes', selectedPropertyTypes.join(','));
+          if (selectedFurnishTypes.length > 0) params.append('furnishing', selectedFurnishTypes.join(','));
+          if (selectedSellerTypes.length > 0) params.append('listedBy', selectedSellerTypes.join(','));
+          if (minAmount !== null) params.append('minAmount', minAmount);
+          if (maxAmount !== null) params.append('maxAmount', maxAmount);
+
+          const apiUrl = `https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/properties?${params.toString()}`;
+
+          const response = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer e74e1523bfaf582757ca621fd6166361a1df604b3c6369383f313fba83baceac"
+            },
+          });
+          const data = await response.json();
+          if (
+            data.success &&
+            data.data &&
+            data.data.properties &&
+            data.data.properties.length > 0
+          ) {
+            searchPropertyContainer.innerHTML = data.data.properties
+              .map((property, idx) => {
+                let imageUrl = "";
+                let images = [];
+                try {
+                  const imageData = JSON.parse(property.imageURL);
+                  if (Array.isArray(imageData) && imageData.length > 0) {
+                    imageUrl = imageData[0].imageUrl;
+                    images = imageData.map((img) => img.imageUrl).filter(Boolean);
+                  }
+                } catch (e) {
+                  imageUrl =
+                    "https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/images/propertycardimages/Trending/nf5fbl8k6d28y6wfnx0r";
+                  images = [imageUrl];
+                }
+                const formattedPrice = property.price
+                  ? `₹ ${(property.price / 10000000).toFixed(2)} Cr`
+                  : "Price on Request";
+                const shortDescription =
+                  property.shortDescription ||
+                  property.longDescription ||
+                  "Premium property available for viewing";
+                const cleanDescription = shortDescription
+                  .replace(/<[^>]*>/g, "")
+                  .replace(/&nbsp;/g, " ")
+                  .replace(/&#160;/g, " ")
+                  .trim();
+                return `
           <div class="w-full bg-white sm:rounded-xl rounded-none overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform flex flex-col justify-between min-h-[550px] mb-6">
             <div class="relative">
-              <img src="${imageUrl}" alt="${
-            property.propertyName
-          }" class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
+              <img src="${imageUrl}" alt="${property.propertyName
+                  }" class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
               <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Trending</span>
             </div>
             <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
               <div class="space-y-3 flex-grow">
                 <div>
-                  <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${
-                    property.propertyName
+                  <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.propertyName
                   }</h2>
                   <p class="text-sm lg:text-black lg:text-semibold flex items-center">
-                    <i class="fas fa-map-marker-alt mr-2"></i>${
-                      property.locationAddress || property.city
-                    }
+                    <i class="fas fa-map-marker-alt mr-2"></i>${property.locationAddress || property.city
+                  }
                   </p>
                   <span class="text-base sm:text-lg lg:text-[16px] font-semibold lg:text-black block">
                     ${formattedPrice}
@@ -1679,9 +1657,8 @@ async function updatePropertyResults() {
                 <div class="text-xs sm:text-sm space-y-2">
                   <p class="flex items-center lg:text-black">
                       <i class="fas fa-home text-green-500 mr-2"></i>
-                      <span class="line-clamp-2">${
-                        property.propertyType || "Premium Apartments"
-                      }</span>
+                      <span class="line-clamp-2">${property.propertyType || "Premium Apartments"
+                  }</span>
                   </p>
                   <p class="flex items-center lg:text-black">
                       <i class="fas fa-ruler-combined text-green-500 mr-2"></i>
@@ -1689,30 +1666,27 @@ async function updatePropertyResults() {
                   </p>
                   <p class="flex items-center lg:text-black">
                       <i class="fas fa-calendar-alt text-green-500 mr-2"></i>
-                      ${
-                        property.readyToMove
-                          ? "Ready to Move"
-                          : "Under Construction"
-                      }
+                      ${property.readyToMove
+                    ? "Ready to Move"
+                    : "Under Construction"
+                  }
                   </p>
                 </div>
                 <div class="text-sm text-black mt-2">${cleanDescription}</div>
               </div>
               <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
-                <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="window.location.href='property_details.html?pro=${
-                  property.propertyId || property.id
-                }&in=${idx}&slid=false&partnerProperty=false'">Details</button>
-                <button onclick="openEnquiryForm({ propertyName: '${
-                  property.propertyName
-                }' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
+                <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="window.location.href='property_details.html?pro=${property.propertyId || property.id
+                  }&in=${idx}&slid=false&partnerProperty=false'">Details</button>
+                <button onclick="openEnquiryForm({ propertyName: '${property.propertyName
+                  }' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
               </div>
             </div>
           </div>
         `;
-        })
-        .join("");
-    } else {
-      searchPropertyContainer.innerHTML = `
+              })
+              .join("");
+          } else {
+            searchPropertyContainer.innerHTML = `
         <div class="flex flex-col items-center justify-center py-12">
           <div class="flex items-center justify-center mb-4">
             <svg class="w-12 h-12 text-yellow-500 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
@@ -1723,12 +1697,12 @@ async function updatePropertyResults() {
           </div>
         </div>
       `;
-    }
-  } catch (err) {
-    searchPropertyContainer.innerHTML =
-      '<div class="text-center text-red-600 py-10">Failed to fetch properties. Please try again later.</div>';
-  }
-}
+          }
+        } catch (err) {
+          searchPropertyContainer.innerHTML =
+            '<div class="text-center text-red-600 py-10">Failed to fetch properties. Please try again later.</div>';
+        }
+      }
     }
     // Always clear and show loading in results
     searchPropertyContainer.innerHTML = `<div class='col-span-full flex justify-center items-center py-10' style='min-height:220px;'><div class='flex flex-col justify-center items-center w-full'><div class='loading-spinner' style='margin:0 auto;'></div><span class='mt-4 text-gray-600'>Searching properties...</span></div></div>`;
@@ -1854,21 +1828,18 @@ async function updatePropertyResults() {
             return `
             <div class="w-full bg-white sm:rounded-xl rounded-none overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform flex flex-col justify-between min-h-[550px] mb-6">
               <div class="relative">
-                <img src="${imageUrl}" alt="${
-              property.propertyName
-            }" class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
+                <img src="${imageUrl}" alt="${property.propertyName
+              }" class="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 hover:scale-110">
                 <span class="absolute top-2 right-2 bg-[#b1923f] text-white px-3 py-1 text-xs sm:text-sm rounded-full font-medium">Trending</span>
               </div>
               <div class="p-4 sm:p-5 bg-gradient-to-b from-gray-50 to-white flex flex-col flex-grow">
                 <div class="space-y-3 flex-grow">
                   <div>
-                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${
-                      property.propertyName
-                    }</h2>
+                    <h2 class="text-lg sm:text-xl font-bold lg:text-black lg:font-semibold line-clamp-1">${property.propertyName
+              }</h2>
                     <p class="text-sm lg:text-black lg:text-semibold flex items-center">
-                      <i class="fas fa-map-marker-alt mr-2"></i>${
-                        property.locationAddress || property.city
-                      }
+                      <i class="fas fa-map-marker-alt mr-2"></i>${property.locationAddress || property.city
+              }
                     </p>
                     <span class="text-base sm:text-lg lg:text-[16px] font-semibold lg:text-black block">
                       ${formattedPrice}
@@ -1877,9 +1848,8 @@ async function updatePropertyResults() {
                   <div class="text-xs sm:text-sm space-y-2">
                     <p class="flex items-center lg:text-black">
                         <i class="fas fa-home text-green-500 mr-2"></i>
-                        <span class="line-clamp-2">${
-                          property.propertyType || "Premium Apartments"
-                        }</span>
+                        <span class="line-clamp-2">${property.propertyType || "Premium Apartments"
+              }</span>
                     </p>
                     <p class="flex items-center lg:text-black">
                         <i class="fas fa-ruler-combined text-green-500 mr-2"></i>
@@ -1887,22 +1857,19 @@ async function updatePropertyResults() {
                     </p>
                     <p class="flex items-center lg:text-black">
                         <i class="fas fa-calendar-alt text-green-500 mr-2"></i>
-                        ${
-                          property.readyToMove
-                            ? "Ready to Move"
-                            : "Under Construction"
-                        }
+                        ${property.readyToMove
+                ? "Ready to Move"
+                : "Under Construction"
+              }
                     </p>
                   </div>
                   <div class="text-sm text-black mt-2">${cleanDescription}</div>
                 </div>
                 <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
-                  <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="window.location.href='property_details.html?pro=${
-                    property.propertyId || property.id
-                  }&in=${idx}&slid=false&partnerProperty=false'">Details</button>
-                  <button onclick="openEnquiryForm({ propertyName: '${
-                    property.propertyName
-                  }' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
+                  <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="window.location.href='property_details.html?pro=${property.propertyId || property.id
+              }&in=${idx}&slid=false&partnerProperty=false'">Details</button>
+                  <button onclick="openEnquiryForm({ propertyName: '${property.propertyName
+              }' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
                 </div>
               </div>
             </div>
@@ -1917,58 +1884,58 @@ async function updatePropertyResults() {
         // Render pagination below the cards
         renderPagination(data.data.pagination, false);
 
-      // Helper to render pagination controls
-      function renderPagination(pagination, isTop) {
-        if (!pagination || pagination.totalPages <= 1) return;
-        // Remove old paginations (top or bottom)
-        const selector = isTop ? '.property-pagination-top' : '.property-pagination-bottom';
-        const oldPag = searchPropertyContainer.querySelector(selector);
-        if (oldPag) oldPag.remove();
-        const container = document.createElement('div');
-        container.className = (isTop ? 'property-pagination-top' : 'property-pagination-bottom') + ' flex justify-center mt-6';
-        let html = '';
-        // Prev button
-        html += `<button class="px-3 py-1 mx-1 rounded-full border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}"><i class='fas fa-chevron-left mr-1'></i> Prev</button>`;
-        // Page numbers (show up to 5 pages)
-        let start = Math.max(1, pagination.currentPage - 2);
-        let end = Math.min(pagination.totalPages, pagination.currentPage + 2);
-        if (pagination.currentPage <= 3) end = Math.min(5, pagination.totalPages);
-        if (pagination.currentPage > pagination.totalPages - 2) start = Math.max(1, pagination.totalPages - 4);
-        for (let i = start; i <= end; i++) {
-          html += `<button class="px-3 py-1 mx-1 rounded-full border-2 ${i === pagination.currentPage ? 'bg-[#008a46] text-white font-bold border-[#b1923f] shadow-lg scale-110' : 'bg-white text-[#008a46] border-[#008a46] hover:bg-[#008a46] hover:text-white hover:shadow-lg'} transition-all duration-200" data-page="${i}">${i}</button>`;
-        }
-        // Next button
-        html += `<button class="px-3 py-1 mx-1 rounded-full border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">Next <i class='fas fa-chevron-right ml-1'></i></button>`;
-        container.innerHTML = html;
-        if (isTop) {
-          searchPropertyContainer.prepend(container);
-        } else {
-          searchPropertyContainer.appendChild(container);
-        }
-        // Add click listeners
-        container.querySelectorAll('button[data-page]').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const page = parseInt(this.getAttribute('data-page'));
-            if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
-              // Always use the main searchProperties function for pagination
-              if (!window.propertySearchState) window.propertySearchState = {};
-              window.propertySearchState.currentPage = page;
-              if (typeof window.searchProperties === 'function') {
-                window.searchProperties(page);
-              } else {
-                updatePropertyResults();
-              }
-              setTimeout(() => {
-                if (isTop) {
-                  searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Helper to render pagination controls
+        function renderPagination(pagination, isTop) {
+          if (!pagination || pagination.totalPages <= 1) return;
+          // Remove old paginations (top or bottom)
+          const selector = isTop ? '.property-pagination-top' : '.property-pagination-bottom';
+          const oldPag = searchPropertyContainer.querySelector(selector);
+          if (oldPag) oldPag.remove();
+          const container = document.createElement('div');
+          container.className = (isTop ? 'property-pagination-top' : 'property-pagination-bottom') + ' flex justify-center mt-6';
+          let html = '';
+          // Prev button
+          html += `<button class="px-3 py-1 mx-1 rounded-full border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}"><i class='fas fa-chevron-left mr-1'></i> Prev</button>`;
+          // Page numbers (show up to 5 pages)
+          let start = Math.max(1, pagination.currentPage - 2);
+          let end = Math.min(pagination.totalPages, pagination.currentPage + 2);
+          if (pagination.currentPage <= 3) end = Math.min(5, pagination.totalPages);
+          if (pagination.currentPage > pagination.totalPages - 2) start = Math.max(1, pagination.totalPages - 4);
+          for (let i = start; i <= end; i++) {
+            html += `<button class="px-3 py-1 mx-1 rounded-full border-2 ${i === pagination.currentPage ? 'bg-[#008a46] text-white font-bold border-[#b1923f] shadow-lg scale-110' : 'bg-white text-[#008a46] border-[#008a46] hover:bg-[#008a46] hover:text-white hover:shadow-lg'} transition-all duration-200" data-page="${i}">${i}</button>`;
+          }
+          // Next button
+          html += `<button class="px-3 py-1 mx-1 rounded-full border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">Next <i class='fas fa-chevron-right ml-1'></i></button>`;
+          container.innerHTML = html;
+          if (isTop) {
+            searchPropertyContainer.prepend(container);
+          } else {
+            searchPropertyContainer.appendChild(container);
+          }
+          // Add click listeners
+          container.querySelectorAll('button[data-page]').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const page = parseInt(this.getAttribute('data-page'));
+              if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
+                // Always use the main searchProperties function for pagination
+                if (!window.propertySearchState) window.propertySearchState = {};
+                window.propertySearchState.currentPage = page;
+                if (typeof window.searchProperties === 'function') {
+                  window.searchProperties(page);
                 } else {
-                  searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                  updatePropertyResults();
                 }
-              }, 100);
-            }
+                setTimeout(() => {
+                  if (isTop) {
+                    searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  } else {
+                    searchPropertyContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                  }
+                }, 100);
+              }
+            });
           });
-        });
-      }
+        }
       } else {
         // Show the message only in the search results section, not the whole property-render-container
         if (typeof searchResultsSection !== 'undefined' && searchResultsSection) {
@@ -2008,7 +1975,7 @@ async function updatePropertyResults() {
         searchPropertyContainer.appendChild(container);
         // Add click listeners
         container.querySelectorAll('button[data-page]').forEach(btn => {
-          btn.addEventListener('click', function() {
+          btn.addEventListener('click', function () {
             const page = parseInt(this.getAttribute('data-page'));
             if (!isNaN(page) && page !== pagination.currentPage && page >= 1 && page <= pagination.totalPages) {
               window.searchProperties(page);
@@ -2074,15 +2041,13 @@ async function updatePropertyResults() {
         .map(
           (item) => `
         <div class='clsDropdown px-4 py-2 cursor-pointer hover:bg-[#f5f5f5] border-b border-gray-100 flex flex-col' data-description='${item.description.replace(
-          /'/g,
-          "&apos;"
-        )}' tabindex="0" style='color:#222; background:#fff; font-size:1rem;'>
-          <span class='font-semibold' style='color:#008a46;'>${
-            item.structured_formatting.main_text
-          }</span>
-          <span class='text-xs text-gray-500 ml-2'>${
-            item.structured_formatting.secondary_text || ""
-          }</span>
+            /'/g,
+            "&apos;"
+          )}' tabindex="0" style='color:#222; background:#fff; font-size:1rem;'>
+          <span class='font-semibold' style='color:#008a46;'>${item.structured_formatting.main_text
+            }</span>
+          <span class='text-xs text-gray-500 ml-2'>${item.structured_formatting.secondary_text || ""
+            }</span>
         </div>`
         )
         .join("");
@@ -2165,7 +2130,7 @@ document.addEventListener("DOMContentLoaded", function () {
       debounceTimeout = setTimeout(function () {
         fetch(
           "https://dncrnewapi-bmbfb6f6awd8b0bd.westindia-01.azurewebsites.net/master-details/getgoogleplaces?text=" +
-            encodeURIComponent(query),
+          encodeURIComponent(query),
           {
             method: "GET",
             headers: {
@@ -2916,15 +2881,13 @@ window.initAddressAutocomplete = function () {
         .map(
           (item) => `
         <div class='clsDropdown px-4 py-2 cursor-pointer hover:bg-[#f5f5f5] border-b border-gray-100 flex flex-col' data-description='${item.description.replace(
-          /'/g,
-          "&apos;"
-        )}' tabindex="0" style='color:#222; background:#fff; font-size:1rem;'>
-          <span class='font-semibold' style='color:#008a46;'>${
-            item.structured_formatting.main_text
-          }</span>
-          <span class='text-xs text-gray-500 ml-2'>${
-            item.structured_formatting.secondary_text || ""
-          }</span>
+            /'/g,
+            "&apos;"
+          )}' tabindex="0" style='color:#222; background:#fff; font-size:1rem;'>
+          <span class='font-semibold' style='color:#008a46;'>${item.structured_formatting.main_text
+            }</span>
+          <span class='text-xs text-gray-500 ml-2'>${item.structured_formatting.secondary_text || ""
+            }</span>
         </div>`
         )
         .join("");
