@@ -5,61 +5,59 @@ function createHeader(container) {
   header.className = "bg-[#E8E8E8] text-black w-full relative";
   header.style.width = "100%";
   header.innerHTML = `
-    <div class="container mx-auto px-4 flex justify-between items-center">
-      <div class="logo">
+    <div class="container mx-auto px-2 sm:px-4 flex flex-wrap justify-between items-center py-2">
+      <div class="logo flex-shrink-0 flex items-center">
         <a href="index.html" aria-label="index.html">  
           <img src="https://res.cloudinary.com/dzauu64ta/image/upload/f_auto,q_auto/v1/DeccanRealty/logos/mvkyoqagcwzy4cyb83gj"  alt="Deccan Realty Logo" 
-               class="w-32 h-32 rounded-full md:w-36 md:h-36 lg:w-40 lg:h-40 object-contain">
+               class="w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full object-contain">
         </a>
       </div>
-      <ul class="nav-menu hidden md:flex items-center space-x-4 font-bold">
-        <li><a href="index.html" aria-label="Home" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-black lg:font-bold">HOME</a></li>
-        <li><a href="about.html" aria-label="About" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">ABOUT</a></li>
-        <li><a href="contact.html" aria-label="Contact" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">CONTACT</a></li>
-        <li><a href="faq.html" aria-label="FAQ" class="font-medium text-lg px-3 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold">FAQ</a></li>
+      <ul class="nav-menu hidden md:flex flex-wrap items-center gap-2 md:gap-4 font-bold text-base md:text-lg">
+        <li><a href="index.html" aria-label="Home" class="font-medium px-2 py-1 rounded-md transition text-black hover:text-black lg:font-bold whitespace-nowrap">HOME</a></li>
+        <li><a href="about.html" aria-label="About" class="font-medium px-2 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold whitespace-nowrap">ABOUT</a></li>
+        <li><a href="contact.html" aria-label="Contact" class="font-medium px-2 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold whitespace-nowrap">CONTACT</a></li>
+        <li><a href="faq.html" aria-label="FAQ" class="font-medium px-2 py-1 rounded-md transition text-black hover:text-[#008a46] lg:font-bold whitespace-nowrap">FAQ</a></li>
         <li>
-          <button id="login-btn" onclick="openLoginModal()" class="text-black bg-transparent border-none font-bold text-lg px-3 py-1 rounded-full shadow-none transition-all duration-200 focus:outline-none ml-2">LOGIN</button>
+          <button id="login-btn" onclick="openLoginModal()" class="text-black bg-transparent border-none font-bold px-2 py-1 rounded-full shadow-none transition-all duration-200 focus:outline-none ml-2 whitespace-nowrap">LOGIN</button>
         </li>
-        <li class="group border border-[green] px-4 py-2 rounded-md transition hover:bg-[#008a46]">
+        <li class="group border border-[green] px-3 py-1 rounded-md transition hover:bg-[#008a46] whitespace-nowrap">
           <a href="homeloan.html" 
              aria-label="HomeLoan" 
-             class="font-medium text-lg text-black group-hover:text-[#ff7b2a] lg:font-bold">
+             class="font-medium text-black group-hover:text-[#ff7b2a] lg:font-bold">
               HOME LOAN
           </a>
         </li>
-        <li class="group border border-[green] px-4 py-2 rounded-md transition hover:bg-[#008a46]">
-          <button id="list-property-btn" onclick="openSellerSignupModal()" class="text-black font-bold text-lg rounded-md px-0 py-0 w-full h-full flex items-center justify-center transition focus:outline-none">
+        <li class="group border border-[green] px-3 py-1 rounded-md transition hover:bg-[#008a46] whitespace-nowrap">
+          <button id="list-property-btn" onclick="openSellerSignupModal()" class="text-black font-bold rounded-md px-0 py-0 w-full h-full flex items-center justify-center transition focus:outline-none">
             <span class="mr-1">List Property</span> <span class="text-white font-bold ml-1 px-2 rounded-md bg-green-600">Free</span>
           </button>
         </li>
       </ul>
-      <div class="md:hidden flex items-center gap-3">
+      <div class="md:hidden flex items-center gap-2">
         <button class="text-2xl text-black mobile-menu-btn z-50">☰</button>
       </div>
     </div>
     <!-- Side drawer overlay -->
-    <div class="overlay fixed inset-0  bg-opacity-50 z-40 hidden"></div>
+    <div class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
     <!-- Side drawer menu -->
-    <div class="side-drawer fixed top-0 right-0 h-full w-64 bg-[#237f51] z-50 transform translate-x-full transition-transform duration-300 ease-in-out shadow-lg">
+    <div class="side-drawer fixed top-0 right-0 h-full w-64 max-w-[90vw] bg-[#237f51] z-50 transform translate-x-full transition-transform duration-300 ease-in-out shadow-lg">
       <div class="flex justify-end p-4">
         <button class="drawer-close text-white text-2xl">✕</button>
       </div>
-      <ul class="flex flex-col space-y-4 p-4">
-        <li class="w-full"><a href="index.html" aria-label="Home" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black lg:font-bold">Home</a></li>
-        <li class="w-full"><a href="about.html" aria-label="About" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black">About</a></li>
-        <li class="w-full"><a href="contact.html" aria-label="Contact" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black">Contact</a></li>
-        <li class="w-full"><a href="faq.html" aria-label="FAQ" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black">FAQ</a></li>
-        <li class="w-full mt-4">
+      <ul class="flex flex-col space-y-2 p-4">
+        <li class="w-full"><a href="index.html" aria-label="Home" class="block text-base sm:text-lg font-medium py-2 px-3 rounded-md text-white hover:text-green-500 hover:bg-black lg:font-bold whitespace-nowrap">Home</a></li>
+        <li class="w-full"><a href="about.html" aria-label="About" class="block text-base sm:text-lg font-medium py-2 px-3 rounded-md text-white hover:text-green-500 hover:bg-black whitespace-nowrap">About</a></li>
+        <li class="w-full"><a href="contact.html" aria-label="Contact" class="block text-base sm:text-lg font-medium py-2 px-3 rounded-md text-white hover:text-green-500 hover:bg-black whitespace-nowrap">Contact</a></li>
+        <li class="w-full"><a href="faq.html" aria-label="FAQ" class="block text-base sm:text-lg font-medium py-2 px-3 rounded-md text-white hover:text-green-500 hover:bg-black whitespace-nowrap">FAQ</a></li>
+        <li class="w-full mt-2">
           <a href="homeloan.html" 
-             aria-label="HomeLoan" class="block text-lg font-medium py-2 px-3 border border-white rounded-md text-white hover:text-green-500 hover:bg-black transition">
-            Home Loan
-          </a>
+             aria-label="HomeLoan" class="block text-base sm:text-lg font-medium py-2 px-3 border border-white rounded-md text-white hover:text-green-500 hover:bg-black transition whitespace-nowrap">Home Loan</a>
         </li>
         <li class="w-full mt-2">
-          <a href="#" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black text-center" onclick="openLoginModal()">Login</a>
+          <a href="#" class="block text-base sm:text-lg font-medium py-2 px-3 rounded-md text-white hover:text-green-500 hover:bg-black text-left whitespace-nowrap" onclick="openLoginModal()">Login</a>
         </li>
-        <li class="w-full mt-2">
-          <a href="#" class="block text-lg font-medium py-3 px-3 rounded-md text-white hover:text-green-500 hover:bg-black text-center" onclick="openSellerSignupModal()">List Property Free</a>
+        <li class="w-full">
+          <a href="#" class="block text-base sm:text-lg font-medium py-2 px-3 rounded-md text-white hover:text-green-500 hover:bg-black text-left whitespace-nowrap" onclick="openSellerSignupModal()">List Property Free</a>
         </li>
       </ul>
     </div>
