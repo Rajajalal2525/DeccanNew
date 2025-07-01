@@ -1256,7 +1256,7 @@ document.addEventListener("DOMContentLoaded", function () {
       toggles.forEach(t => t.classList.remove('active'));
       this.classList.add('active');
       if (idx === 0) {
-        selectedType = 'buy';
+        selectedType = 'sale'; // Change to 'sale' for API parameter
         if (typeof searchProperties === 'function') {
           searchProperties();
         }
