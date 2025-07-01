@@ -259,6 +259,11 @@ async function fetchExpertiseData() {
     const data = await response.json();
 
     if (data.success && data.data && data.data.properties) {
+      // Scroll to the property-render-container on successful search
+      const scrollTarget = document.getElementById("property-render-container");
+      if (scrollTarget) {
+        scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
       return data.data.properties;
     } else {
       console.error("API response format is not as expected:", data);
