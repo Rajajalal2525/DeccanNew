@@ -1798,14 +1798,30 @@ document.addEventListener("DOMContentLoaded", function () {
         params.append('sortBy', sortBy);
       }
 
-      // Add location (city) from dropdown or address input (city suggestion)
+      // --- City/Address logic ---
       let selectedLocation = locationDropdown.value;
-      // If address-input is filled and not present in dropdown, use it as city
       const addressInput = document.getElementById('address-input');
-      if (addressInput && addressInput.value && (!selectedLocation || selectedLocation === '')) {
-        selectedLocation = addressInput.value;
+      const addressInputValue = addressInput && addressInput.value && addressInput.value.trim();
+
+      // We'll use a simple city list from the dropdown for city match (can be improved with suggestions array)
+      let cityOptions = [];
+      if (locationDropdown) {
+        cityOptions = Array.from(locationDropdown.options).map(opt => opt.value).filter(v => v);
       }
-      if (selectedLocation) params.append('city', selectedLocation);
+
+      if (addressInputValue) {
+        // If addressInputValue matches a city in dropdown, treat as city
+        const isCity = cityOptions.some(city => city.toLowerCase() === addressInputValue.toLowerCase());
+        if (isCity) {
+          params.append('city', addressInputValue);
+        } else {
+          // Always send city as empty if not matched, and send address
+          params.append('city', '');
+          params.append('address', addressInputValue);
+        }
+      } else if (selectedLocation) {
+        params.append('city', selectedLocation);
+      }
 
       // Add bedrooms
       if (selectedBedrooms.length > 0) params.append('bhkType', selectedBedrooms.join(','));
@@ -1829,14 +1845,30 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       });
       const data = await response.json();
+      // --- Filter for exact address match on frontend if address search is used ---
+      let filteredProperties = data.data && data.data.properties ? data.data.properties : [];
+      // If address search, filter strictly for address; if city search, filter strictly for city
+      const isCity = cityOptions.some(city => city.toLowerCase() === (addressInputValue || '').toLowerCase());
+      if (addressInputValue && isCity) {
+        // City search: show only properties where city matches exactly
+        filteredProperties = filteredProperties.filter(property => {
+          return (property.city || '').trim().toLowerCase() === addressInputValue.trim().toLowerCase();
+        });
+      } else if (addressInputValue && !isCity) {
+        // Address search: all address parts must be present in property address (case-insensitive, strict)
+        const addressParts = addressInputValue.split(',').map(part => part.trim().toLowerCase()).filter(Boolean);
+        filteredProperties = filteredProperties.filter(property => {
+          const propAddr = (property.locationAddress || property.address || '').trim().toLowerCase();
+          return addressParts.every(part => propAddr.includes(part));
+        });
+      }
       if (
         data.success &&
-        data.data &&
-        data.data.properties &&
-        data.data.properties.length > 0
+        filteredProperties &&
+        filteredProperties.length > 0
       ) {
         // Render property cards
-        searchPropertyContainer.innerHTML = data.data.properties
+        searchPropertyContainer.innerHTML = filteredProperties
           .map((property, idx) => {
             let imageUrl = "";
             let images = [];
