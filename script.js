@@ -1445,20 +1445,49 @@ document.addEventListener("DOMContentLoaded", function () {
       attachFilterListeners();
 
       // Add Apply button above filters if not already present
+
+      // Add Clear All button above Apply
+      let clearAllBtn = document.getElementById('clear-all-filters-btn');
+      if (!clearAllBtn) {
+        clearAllBtn = document.createElement('button');
+        clearAllBtn.id = 'clear-all-filters-btn';
+        clearAllBtn.type = 'button';
+        clearAllBtn.textContent = 'Clear All';
+        clearAllBtn.className = 'absolute left-4 top-4 text-xs px-3 py-1 bg-gray-200 hover:bg-gray-300 text-[#008a46] font-semibold rounded transition-colors duration-300 shadow-sm border border-[#008a46]';
+        const filterSection = document.getElementById('filter-section');
+        if (filterSection) {
+          filterSection.style.position = 'relative';
+          filterSection.insertBefore(clearAllBtn, filterSection.firstChild);
+        }
+      }
+
       let applyBtn = document.getElementById('apply-filters-btn');
       if (!applyBtn) {
         applyBtn = document.createElement('button');
         applyBtn.id = 'apply-filters-btn';
         applyBtn.textContent = 'Apply';
-        // Small, right-aligned button above filters
         applyBtn.className = 'absolute right-4 top-4 text-xs px-3 py-1 bg-[#008a46] hover:bg-[#b1923f] text-white font-semibold rounded transition-colors duration-300 shadow-sm';
-        // Insert at the top of filter section
         const filterSection = document.getElementById('filter-section');
         if (filterSection) {
           filterSection.style.position = 'relative';
-          filterSection.insertBefore(applyBtn, filterSection.firstChild);
+          filterSection.insertBefore(applyBtn, filterSection.firstChild.nextSibling); // after clear all
         }
       }
+
+      clearAllBtn.onclick = function () {
+        // Uncheck all filter checkboxes
+        document.querySelectorAll('#filter-section input[type="checkbox"]').forEach(cb => {
+          cb.checked = false;
+        });
+        // Clear filter state
+        if (window.propertyFilterState) {
+          window.propertyFilterState.bedrooms = [];
+          window.propertyFilterState.propertyTypes = [];
+          window.propertyFilterState.furnishTypes = [];
+          window.propertyFilterState.sellerTypes = [];
+          window.propertyFilterState.amountRanges = [];
+        }
+      };
 
       applyBtn.onclick = function () {
         // Mimic the search button click: show loader, disable search button, call searchProperties
