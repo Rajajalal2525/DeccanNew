@@ -1292,6 +1292,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   window.searchProperties = async function searchProperties(page = 1) {
+    // If page is a PointerEvent (from button click), ignore and use 1
+    if (typeof page === 'object' && page !== null && (page instanceof PointerEvent || page instanceof Event)) {
+      page = 1;
+    }
     window.propertySearchState.currentPage = page;
 
     const scrollTarget = document.getElementById("property-render-container");
@@ -1783,7 +1787,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       params.append('page', String(pageNum));
-      params.append('pageSize', '12');
+      params.append('pageSize', '10');
       params.append('sourceWebsite', 'deccanrealty.com');
       // Only add propertyFor if a toggle is selected
       if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
@@ -1794,8 +1798,13 @@ document.addEventListener("DOMContentLoaded", function () {
         params.append('sortBy', sortBy);
       }
 
-      // Add location (city) from dropdown
-      const selectedLocation = locationDropdown.value;
+      // Add location (city) from dropdown or address input (city suggestion)
+      let selectedLocation = locationDropdown.value;
+      // If address-input is filled and not present in dropdown, use it as city
+      const addressInput = document.getElementById('address-input');
+      if (addressInput && addressInput.value && (!selectedLocation || selectedLocation === '')) {
+        selectedLocation = addressInput.value;
+      }
       if (selectedLocation) params.append('city', selectedLocation);
 
       // Add bedrooms
