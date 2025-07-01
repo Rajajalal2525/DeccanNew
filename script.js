@@ -1810,9 +1810,13 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (addressInputValue) {
-        // If addressInputValue matches a city in dropdown, treat as city
+        // Check if input is a zipcode/pincode (5 or 6 digit number)
+        const isZip = /^\d{5,6}$/.test(addressInputValue);
         const isCity = cityOptions.some(city => city.toLowerCase() === addressInputValue.toLowerCase());
-        if (isCity) {
+        if (isZip) {
+          params.append('zipcode', addressInputValue); // Use 'zipcode' param, change to 'pincode' or 'postalCode' if API expects that
+          // Do NOT send city or address
+        } else if (isCity) {
           params.append('city', addressInputValue);
           // Do NOT send address
         } else {
@@ -1849,8 +1853,15 @@ document.addEventListener("DOMContentLoaded", function () {
       // --- Filter for exact address match on frontend if address search is used ---
       let filteredProperties = data.data && data.data.properties ? data.data.properties : [];
       // If address search, filter strictly for address; if city search, filter strictly for city
+      const isZip = addressInputValue && /^\d{5,6}$/.test(addressInputValue);
       const isCity = cityOptions.some(city => city.toLowerCase() === (addressInputValue || '').toLowerCase());
-      if (addressInputValue && isCity) {
+      if (addressInputValue && isZip) {
+        // Zipcode search: show only properties where zipcode/pincode/postalCode matches
+        filteredProperties = filteredProperties.filter(property => {
+          const propZip = (property.zipcode || property.pincode || property.postalCode || '').toString().trim();
+          return propZip === addressInputValue;
+        });
+      } else if (addressInputValue && isCity) {
         // City search: show only properties where city matches exactly (fuzzy for Bangalore/Bengaluru)
         filteredProperties = filteredProperties.filter(property => {
           const cityVal = (property.city || '').trim().toLowerCase();
