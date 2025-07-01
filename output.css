@@ -661,6 +661,9 @@
   .min-w-\[60px\] {
     min-width: 60px;
   }
+  .min-w-\[70px\] {
+    min-width: 70px;
+  }
   .min-w-\[80px\] {
     min-width: 80px;
   }
@@ -1274,6 +1277,9 @@
   }
   .px-0 {
     padding-inline: calc(var(--spacing) * 0);
+  }
+  .px-1\.5 {
+    padding-inline: calc(var(--spacing) * 1.5);
   }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
