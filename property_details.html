@@ -81,17 +81,25 @@ function renderPropertyDetails(data) {
   // Main image
   let mainImage = images.length > 0 ? images[0].imageUrl : '';
   if (!mainImage) mainImage = 'https://via.placeholder.com/400x300?text=No+Image';
-  // Video embed
-  let videoEmbed = '';
-  if (videoUrl) {
-    // YouTube embed
-    const ytMatch = videoUrl.match(/(?:youtu.be\/|youtube.com\/(?:embed\/|v\/|watch\?v=))([\w-]{11})/);
+
+  // Video section (always show, embed if possible, else show message)
+  let videoSection = '';
+  if (videoUrl && videoUrl.trim() !== '') {
+    // YouTube embed (also support shorts)
+    let ytMatch = videoUrl.match(/(?:youtu.be\/|youtube.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([\w-]{11})/);
     if (ytMatch) {
-      videoEmbed = `<div class="my-3"><iframe width="360" height="215" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe></div>`;
+      videoSection = `<div class="my-3"><b>Property Video:</b><br><iframe width="360" height="215" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen style="max-width:100%;"></iframe></div>`;
+    } else if (videoUrl.match(/\.(mp4|webm|ogg)$/i)) {
+      // Direct video file (mp4, webm, ogg)
+      videoSection = `<div class="my-3"><b>Property Video:</b><br><video width="360" height="215" controls style="max-width:100%;background:#000;"><source src="${videoUrl}"></video></div>`;
     } else {
-      videoEmbed = `<div class="my-3"><a href="${videoUrl}" target="_blank">View Video</a></div>`;
+      // Try to embed as iframe (for other video platforms)
+      videoSection = `<div class="my-3"><b>Property Video:</b><br><iframe width="360" height="215" src="${videoUrl}" frameborder="0" allowfullscreen style="max-width:100%;"></iframe></div>`;
     }
+  } else {
+    videoSection = '<div class="my-3" style="color:#b1923f;font-weight:600;">No videos found</div>';
   }
+
   // Description (prefer long, fallback to short)
   const description = data.longDescription || data.shortDescription || '<i>No description available.</i>';
 
@@ -110,7 +118,7 @@ function renderPropertyDetails(data) {
         <div class="col-md-6" id="image-video-area">
           <img src="${mainImage}" alt="Main Property Image" class="img-fluid rounded mb-2" style="max-height:320px;object-fit:cover;">
           ${buttonsHtml}
-          ${videoEmbed}
+          ${videoSection}
         </div>
         <div class="col-md-6">
           <div class="property-description">${description}</div>
@@ -183,12 +191,16 @@ function showGalleryOverlay(images, videoUrl) {
   // Helper to render video
   function renderVideo() {
     let videoHtml = '';
-    if (videoUrl) {
-      const ytMatch = videoUrl.match(/(?:youtu.be\/|youtube.com\/(?:embed\/|v\/|watch\?v=))([\w-]{11})/);
+    if (videoUrl && videoUrl.trim() !== '') {
+      // YouTube embed (also support shorts)
+      let ytMatch = videoUrl.match(/(?:youtu.be\/|youtube.com\/(?:embed\/|v\/|watch\?v=|shorts\/))([\w-]{11})/);
       if (ytMatch) {
         videoHtml = `<div class="my-3" style="text-align:center;"><iframe width="900" height="500" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen style="max-width:90vw;max-height:70vh;"></iframe></div>`;
+      } else if (videoUrl.match(/\.(mp4|webm|ogg)$/i)) {
+        videoHtml = `<div class="my-3" style="text-align:center;"><video width="900" height="500" controls style="max-width:90vw;max-height:70vh;background:#000;"><source src="${videoUrl}"></video></div>`;
       } else {
-        videoHtml = `<div class="my-3" style="text-align:center;"><a href="${videoUrl}" target="_blank" style="color:#b1923f; font-weight:600; font-size:1.3rem;">View Video</a></div>`;
+        // Try to embed as iframe for other video platforms or direct links
+        videoHtml = `<div class="my-3" style="text-align:center;"><iframe width="900" height="500" src="${videoUrl}" frameborder="0" allowfullscreen style="max-width:90vw;max-height:70vh;"></iframe></div>`;
       }
     } else {
       videoHtml = '<div style="text-align:center; color:#ccc; font-size:1.2rem;">No video available for this property.</div>';
