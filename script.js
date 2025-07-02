@@ -1298,6 +1298,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     window.propertySearchState.currentPage = page;
 
+    // On first search, store the full unfiltered property list for pagination
+    if (!window.fullPropertyList) {
+      window.fullPropertyList = null;
+    }
+
     const scrollTarget = document.getElementById("property-render-container");
     if (scrollTarget) {
       scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1787,7 +1792,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       params.append('page', String(pageNum));
-      params.append('pageSize', '10');
+      params.append('pageSize', '1000'); // fetch large for full list
       params.append('sourceWebsite', 'deccanrealty.com');
       // Only add propertyFor if a toggle is selected
       if (selectedType) params.append('propertyFor', selectedType.charAt(0).toUpperCase() + selectedType.slice(1));
@@ -1850,6 +1855,10 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       });
       const data = await response.json();
+      // --- Store full property list on first search (no filters) ---
+      if (!window.fullPropertyList && (!selectedBedrooms.length && !selectedPropertyTypes.length && !selectedFurnishTypes.length && !selectedSellerTypes.length && !selectedRanges.length && !addressInputValue && !selectedLocation)) {
+        window.fullPropertyList = data.data && data.data.properties ? data.data.properties : [];
+      }
       // --- Filter for exact address match on frontend if address search is used ---
       let filteredProperties = data.data && data.data.properties ? data.data.properties : [];
       // If address search, filter strictly for address; if city search, filter strictly for city
@@ -1891,13 +1900,26 @@ document.addEventListener("DOMContentLoaded", function () {
           return addressMatch || cityMatch;
         });
       }
+      // If no filters/search, show full property list with pagination
+      if (!selectedBedrooms.length && !selectedPropertyTypes.length && !selectedFurnishTypes.length && !selectedSellerTypes.length && !selectedRanges.length && !addressInputValue && !selectedLocation && window.fullPropertyList) {
+        filteredProperties = window.fullPropertyList;
+      }
       if (
         data.success &&
         filteredProperties &&
         filteredProperties.length > 0
       ) {
-        // Render property cards
-        searchPropertyContainer.innerHTML = filteredProperties
+        // --- PAGINATION & SUMMARY BASED ON FILTERED PROPERTIES ---
+        // Calculate pagination based on filteredProperties, not backend
+        const itemsPerPage = 10;
+        const totalItems = filteredProperties.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+        let currentPage = window.propertySearchState && window.propertySearchState.currentPage ? window.propertySearchState.currentPage : 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        // Slice properties for current page
+        const pagedProperties = filteredProperties.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+        // Render property cards for current page only
+        searchPropertyContainer.innerHTML = pagedProperties
           .map((property, idx) => {
             let imageUrl = "";
             let images = [];
@@ -1966,7 +1988,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center gap-3">
                   <button type="button" class="bg-[#008a46] hover:bg-[#b1923f] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300" onclick="window.location.href='property_details.html?pro=${property.propertyId || property.id
-              }&in=${idx}&slid=false&partnerProperty=false'">Details</button>
+              }&in=${((currentPage-1)*itemsPerPage)+idx}&slid=false&partnerProperty=false'">Details</button>
                   <button onclick="openEnquiryForm({ propertyName: '${property.propertyName
               }' })" class="bg-orange-500 cursor-pointer hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300">Enquiry Now</button>
                 </div>
@@ -1976,34 +1998,36 @@ document.addEventListener("DOMContentLoaded", function () {
           })
           .join("");
 
-        // Render pagination controls
-        renderTopPagination(data.data.pagination);
-        renderBottomPagination(data.data.pagination);
+        // Render top pagination (summary + next/prev only) only for search/filter
+        renderTopPagination({
+          currentPage,
+          itemsPerPage,
+          totalItems,
+          totalPages
+        });
+        // Always render bottom pagination (full controls) if more than 1 page, even for 1 property
+        renderBottomPagination({
+          currentPage,
+          itemsPerPage,
+          totalItems,
+          totalPages
+        });
 
         // Helper to render top pagination (summary + next/prev only)
         function renderTopPagination(pagination) {
-          if (!pagination || pagination.totalPages <= 1) return;
+          if (!pagination) return;
           // Remove old top pagination
           const oldTopPag = searchPropertyContainer.querySelector('.property-pagination-top');
           if (oldTopPag) oldTopPag.remove();
           const container = document.createElement('div');
-          container.className = 'property-pagination-top flex justify-between items-center mb-6 p-4 bg-gray-50 rounded-lg border';
-          // Use correct property names from API
-          const currentStart = ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1;
+          container.className = 'property-pagination-top flex flex-col sm:flex-row justify-between items-center mb-6 p-4 bg-gray-50 rounded-lg border';
+          // Calculate summary based on filtered properties
+          const currentStart = pagination.totalItems === 0 ? 0 : ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1;
           const currentEnd = Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems);
-          container.innerHTML = `
-            <div class="text-sm text-gray-600 font-medium">
-              Showing ${currentStart}-${currentEnd} of ${pagination.totalItems} properties
-            </div>
-            <div class="flex gap-2">
-              <button class="px-4 py-2 rounded-lg border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page="${pagination.currentPage - 1}">
-                <i class='fas fa-chevron-left mr-1'></i> Prev
-              </button>
-              <button class="px-4 py-2 rounded-lg border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page="${pagination.currentPage + 1}">
-                Next <i class='fas fa-chevron-right ml-1'></i>
-              </button>
-            </div>
-          `;
+          let html = `<div class=\"text-sm text-gray-600 font-medium mb-2 sm:mb-0\">\n              Showing ${currentStart}-${currentEnd} of ${pagination.totalItems} properties\n            </div>`;
+          // Always show Prev/Next buttons, but disable if only one page
+          html += `<div class=\"flex gap-2\">\n            <button class=\"px-4 py-2 rounded-lg border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}\" ${pagination.currentPage === 1 ? 'disabled' : ''} data-page=\"${pagination.currentPage - 1}\">\n              <i class='fas fa-chevron-left mr-1'></i> Prev\n            </button>\n            <button class=\"px-4 py-2 rounded-lg border-2 border-[#008a46] bg-white text-[#008a46] font-semibold shadow-sm transition-all duration-200 ${pagination.currentPage === pagination.totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#008a46] hover:text-white hover:shadow-lg'}\" ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''} data-page=\"${pagination.currentPage + 1}\">\n              Next <i class='fas fa-chevron-right ml-1'></i>\n            </button>\n          </div>`;
+          container.innerHTML = html.replace(/\\n/g, '\n').replace(/\\"/g, '"');
           searchPropertyContainer.prepend(container);
           // Add click listeners
           container.querySelectorAll('button[data-page]').forEach(btn => {
@@ -2023,7 +2047,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Helper to render bottom pagination (full pagination controls)
         function renderBottomPagination(pagination) {
-          if (!pagination || pagination.totalPages <= 1) return;
+          if (!pagination) return;
           // Remove old bottom pagination
           const oldBottomPag = searchPropertyContainer.querySelector('.property-pagination-bottom');
           if (oldBottomPag) oldBottomPag.remove();
