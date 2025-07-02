@@ -1298,9 +1298,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     window.propertySearchState.currentPage = page;
 
-    // On first search, store the full unfiltered property list for pagination
-    if (!window.fullPropertyList) {
+    // Always reset fullPropertyList on toggle change (buy/rent)
+    if (!window.lastSelectedType) window.lastSelectedType = '';
+    if (window.lastSelectedType !== selectedType) {
       window.fullPropertyList = null;
+      window.lastSelectedType = selectedType;
     }
 
     const scrollTarget = document.getElementById("property-render-container");
@@ -2522,7 +2524,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const rentalProperties = await fetchRentalProperties();
     if (rentalProperties.length > 0) {
       rentalPropertiesContainer.innerHTML = rentalProperties
-        .map((property, idx) => createTrendingPropertyCardFromAPI(property))
+        .map((property, idx) => createExpertiseCardFromAPI(property))
         .join("");
     } else {
       rentalPropertiesContainer.innerHTML = `<div class='col-span-full text-center py-10'><div class='error-message mb-4'><i class='fas fa-exclamation-triangle text-orange-500 text-2xl mb-2'></i><p class='text-gray-600'>No rental properties found.</p></div></div>`;
